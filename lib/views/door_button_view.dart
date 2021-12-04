@@ -47,10 +47,10 @@ class _DoorButtonViewState extends State<DoorButtonView> {
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(widget.title),
         actions: [
           IconButton(onPressed: _onMenuPressed, icon: const Icon(Icons.menu)),
         ],
-        title: Text(widget.title),
       ),
       body: Center(
         child: Wrap(

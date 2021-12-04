@@ -41,16 +41,20 @@ class _MyAppState extends State<MyApp> {
 
   void _onLoginSuccess(BuildContext context) {
     developer.log("LoginSuccess");
-    Navigator.pushNamed(context, '/main');
+    Navigator.pushReplacementNamed(context, '/main');
   }
 
   void _onLoginError(BuildContext context, Response response) {
     developer.log("onLoginError");
 
-    Navigator.pushNamed(context, '/');
+    Navigator.pop(context);
 
     // Briefly show the error message.
-    final snackBar = SnackBar(content: Text(response.body));
+    String err = response.body;
+    if (response.statusCode == 401) {
+      err = "Invalid credentials, please try again.";
+    }
+    final snackBar = SnackBar(content: Text(err));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
