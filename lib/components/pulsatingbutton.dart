@@ -1,6 +1,5 @@
 //import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
 
 class PulsatingButton extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
