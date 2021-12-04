@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.doorman_flutter">
+    package="com.example.doorman">
    <application
         android:label="Doorman"
         android:icon="@mipmap/ic_launcher">

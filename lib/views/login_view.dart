@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:doorman_flutter/components/bezier_container.dart';
+import 'package:doorman/components/bezier_container.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({

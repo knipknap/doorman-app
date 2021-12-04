@@ -1,6 +1,6 @@
 {
-    "name": "doorman_flutter",
-    "short_name": "doorman_flutter",
+    "name": "doorman",
+    "short_name": "doorman",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

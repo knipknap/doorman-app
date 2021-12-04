@@ -1,5 +1,5 @@
 import 'dart:developer' as developer;
-import 'package:doorman_flutter/components/pulsatingbutton.dart';
+import 'package:doorman/components/pulsatingbutton.dart';
 import 'package:flutter/material.dart';
 
 class DoorButtonView extends StatefulWidget {

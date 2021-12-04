@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'package:doorman_flutter/constants.dart' as constants;
-import 'package:doorman_flutter/services/hub_client.dart';
-import 'package:doorman_flutter/views/door_button_view.dart';
-import 'package:doorman_flutter/views/login_view.dart';
-import 'package:doorman_flutter/views/login_wait_view.dart';
+import 'package:doorman/constants.dart' as constants;
+import 'package:doorman/services/hub_client.dart';
+import 'package:doorman/views/door_button_view.dart';
+import 'package:doorman/views/login_view.dart';
+import 'package:doorman/views/login_wait_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
