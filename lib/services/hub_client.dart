@@ -13,6 +13,8 @@ class HubClient {
   final Map<String,String> headers = {
     'Content-type' : 'application/json', 
     'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept',
   };
 
   HubClient(String baseUrl) {
@@ -33,16 +35,16 @@ class HubClient {
 
   void _updateSidFromLoginResponse(String responseBody) {
     // Extract session ID and session validity from response.
-    final parsed = json.decode(responseBody).cast<Map<String, dynamic>>(); 
+    final Map<String, dynamic> parsed = json.decode(responseBody);
     sid = parsed['sid'];
-    sidExpires = DateTime.fromMillisecondsSinceEpoch(parsed['sid_expires']);
+    sidExpires = DateTime.parse(parsed['sid_expires']);
   }
 
   Future<void> passwordLogin(String username,
                      String password,
                      VoidCallback onSuccess,
                      Function onError) async {
-    Uri url = baseUrl.replace(path: "/auth/1.0/session/start");
+    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/start");
     Map<String, String> params = {"username": username, "password": password};
     var body = json.encode(params);
 
@@ -72,7 +74,7 @@ class HubClient {
   Future<void> googleLogin(String authToken,
                            Function onSuccess,
                            Function onError) async {
-    Uri url = baseUrl.replace(path: "/auth/1.0/session/start_google");
+    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/start_google");
     Map<String, String> params = {"id_token": authToken};
     var body = json.encode(params);
 
@@ -104,7 +106,7 @@ class HubClient {
       return;
     }
 
-    Uri url = baseUrl.replace(path: "/auth/1.0/session/check");
+    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/check");
     Map<String, String> params = {"sid": sid!};
     var body = json.encode(params);
 
@@ -136,7 +138,7 @@ class HubClient {
       return;
     }
 
-    Uri url = baseUrl.replace(path: "/auth/1.0/session/end");
+    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/end");
     Map<String, String> params = {"sid": sid!};
     var body = json.encode(params);
 
@@ -163,7 +165,7 @@ class HubClient {
 	}
 
   Future<void> trigger(int actionId, VoidCallback onSuccess, Function onError) async {
-    Uri url = baseUrl.replace(path: "/action/1.0/action/start");
+    Uri url = baseUrl.replace(path: "/api/action/1.0/action/start");
     Map<String, String> params = {"sid": sid!, "id": actionId.toString()};
     var body = json.encode(params);
 
