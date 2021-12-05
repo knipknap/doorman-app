@@ -1,4 +1,4 @@
-package com.spiff.doorman
+package com.bb.doorman
 
 import io.flutter.embedding.android.FlutterActivity
 
