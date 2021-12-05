@@ -71,7 +71,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: doorman-${GITHUB_SHA::6}.aab
+          name: doorman-${{ github.sha }}.aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 5
 
