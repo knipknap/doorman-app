@@ -65,10 +65,10 @@ jobs:
           echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
-      - name: Build Android App Bundle
+      - name: Build Android app bundle
         run: flutter build appbundle --release
 
-      - name: Upload Artifact
+      - name: Upload the app bundle
         uses: actions/upload-artifact@v2
         with:
           name: doorman-${{ github.sha }}.aab
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Artifact
+      - name: Download the app created by the build job
         uses: actions/download-artifact@v2
         with:
           name: doorman-${{ github.sha }}.aab
