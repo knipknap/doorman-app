@@ -43,7 +43,7 @@ jobs:
         run: flutter pub get
 
       - name: Run build_runner
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+        run: flutter pub run build_runner build -r --delete-conflicting-outputs
 
       - name: Run analyzer
         run: flutter analyze
