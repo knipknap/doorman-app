@@ -33,7 +33,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     compileSdkVersion 31
-    ndkVersion "23.1.7779620"   // make sure to keep in sync with the NDK API version in the Github deployment workflow
+    ndkPath "/usr/local/lib/android/sdk/ndk/"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
