@@ -35,7 +35,7 @@ jobs:
         run: flutter --version
 
       - name: Check NDK version
-        run: ls $ANDROID_SDK_ROOT/ndk*
+        run: ls -l $ANDROID_SDK_ROOT/ndk
 
       # env.FLUTTER_HOME comes from the subosito/flutter-action step.
       - name: Cache pub dependencies
