@@ -9,8 +9,8 @@ on:
     types: [published]
 
 jobs:
-  release:
-    name: Test, build and release
+  build:
+    name: Build and test the release
 
     runs-on: ubuntu-latest
 
@@ -66,14 +66,26 @@ jobs:
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
       - name: Build Android App Bundle
-        run: flutter build appbundle
+        run: flutter build appbundle --release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: doorman-${{ github.sha }}.aab
           path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 5
+          retention-days: 2
+
+  release-android:
+    needs: [build]
+    name: Upload to Google Play store
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: doorman-${{ github.sha }}.aab
 
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
@@ -99,5 +111,5 @@ jobs:
           SUPPLY_JSON_KEY_DATA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
           bundle exec fastlane supply \
-          --aab build/app/outputs/bundle/release/app-release.aab \
+          --aab app-release.aab \
           --track beta
