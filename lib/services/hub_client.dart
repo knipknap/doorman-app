@@ -2,10 +2,12 @@ import 'dart:developer' as developer;
 import 'dart:async'; 
 import 'dart:convert'; 
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http; 
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HubClient {
   late final Uri baseUrl;
+  late final VoidCallback onInitialized;
   String? sid;
   DateTime sidExpires = DateTime.now();
   final Duration timeout = Duration(seconds: 10);
@@ -17,13 +19,32 @@ class HubClient {
     'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept',
   };
 
-  HubClient(String baseUrl) {
+  HubClient(String baseUrl, this.onInitialized) {
     this.baseUrl = Uri.parse(baseUrl);
+    loadSid();
   }
 
-  void setSid(String sid, DateTime sidExpires) {
-		this.sid = sid;
-		this.sidExpires = sidExpires;
+  void loadSid() async {
+    developer.log("HubClient.loadSid()");
+    // Load session ID asynchronously.
+    SharedPreferences.getInstance().then((prefs) {
+      sid = prefs.getString("sid");
+      int sidExpiresMs = prefs.getInt("sid-expires") ?? 0;
+      sidExpires = DateTime.fromMillisecondsSinceEpoch(sidExpiresMs);
+      developer.log("HubClient.loadSid(): $sid");
+      onInitialized();
+    });
+  }
+
+  void saveSid() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (sid == null) {
+      prefs.remove("sid");
+    }
+    else {
+      prefs.setString("sid", sid!);
+    }
+    prefs.setInt("sid-expires", sidExpires.millisecondsSinceEpoch);
 	}
 
   bool isLoggedIn() {
@@ -38,6 +59,7 @@ class HubClient {
     final Map<String, dynamic> parsed = json.decode(responseBody);
     sid = parsed['sid'];
     sidExpires = DateTime.parse(parsed['sid_expires']);
+    saveSid();
   }
 
   Future<void> passwordLogin(String username,
@@ -161,6 +183,7 @@ class HubClient {
     }
 
     sid = null;
+    saveSid();
     onSuccess();
 	}
 

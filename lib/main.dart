@@ -26,9 +26,28 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final HubClient client = HubClient(constants.DOORMAN_URL);
+  BuildContext? bcontext;
+  late final HubClient client;
   OpenerStates opener1State = OpenerStates.idle;
   OpenerStates opener2State = OpenerStates.idle;
+
+  _MyAppState() {
+    developer.log("_MyAppState()");
+    client = HubClient(constants.DOORMAN_URL, _onClientInitialized);
+    developer.log("_MyAppState() done");
+  }
+
+  void _onClientInitialized() {
+    developer.log("_onClientInitialized");
+    if (client.isLoggedIn()) {
+      developer.log("_onClientInitialized(): Already logged in, going straight to main");
+      Navigator.pushReplacementNamed(bcontext!, '/main');
+    }
+    else {
+      developer.log("_onClientInitialized(): Not yet logged in, going to login page");
+      Navigator.pushReplacementNamed(bcontext!, '/login');
+    }
+  }
 
   void _onLoginPressed(BuildContext context, String email, String password) {
     developer.log("Login");
@@ -118,9 +137,12 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      //home: LoginView(title: 'Doorman', onLoginPressed: _onLoginPressed),
       routes: {
-        '/': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
+        '/': (context) {
+          bcontext = context;
+          return LoginWaitView(title: constants.APP_NAME);
+        },
+        '/login': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
         '/login/try': (context) => LoginWaitView(title: constants.APP_NAME),
         '/main': (context) => DoorButtonView(
           title: constants.APP_NAME,
