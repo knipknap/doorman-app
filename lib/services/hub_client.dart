@@ -23,8 +23,6 @@ class HubClient {
     this.baseUrl = Uri.parse(baseUrl);
   }
 
-  FutureOr<void> _init(void _) async {}
-
   void init(VoidCallback onInitialized, Function onError) async {
     developer.log("HubClient.init()");
     await loadSid();
