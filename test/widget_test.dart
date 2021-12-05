@@ -11,15 +11,8 @@ import 'package:doorman/main.dart';
 
 void main() {
   testWidgets('Login screen loads', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('Email'), findsOneWidget);
     expect(find.text('error'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    //await tester.tap(find.byIcon(Icons.add));
-    //await tester.pump();
   });
 }
