@@ -33,7 +33,8 @@ class _MyAppState extends State<MyApp> {
 
   _MyAppState() {
     developer.log("_MyAppState()");
-    client = HubClient(constants.DOORMAN_URL, _onClientInitialized);
+    client = HubClient(constants.DOORMAN_URL);
+    client.init(_onClientInitialized, _onInitializationError);
     developer.log("_MyAppState() done");
   }
 
@@ -47,6 +48,21 @@ class _MyAppState extends State<MyApp> {
       developer.log("_onClientInitialized(): Not yet logged in, going to login page");
       Navigator.pushReplacementNamed(bcontext!, '/login');
     }
+  }
+
+  void _onInitializationError(Response response) {
+    developer.log("_onInitializationError");
+
+    // Clear navigation history and go to the login form.
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/login',
+      (Route<dynamic> route) => false
+    );
+
+    // Briefly show the error message.
+    String err = response.body;
+    final snackBar = SnackBar(content: Text(err));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _onLoginPressed(BuildContext context, String email, String password) {
@@ -76,6 +92,46 @@ class _MyAppState extends State<MyApp> {
     final snackBar = SnackBar(content: Text(err));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  void _onLogoutPressed(BuildContext context) {
+    developer.log("_onLogoutPressed");
+
+    client.logout(() => { _onLogoutSuccess(context) },
+                  (Response response) => { _onLogoutError(context, response) });
+
+    Navigator.pushNamed(context, '/logout/try');
+  }
+
+  void _onLogoutSuccess(BuildContext context) {
+    developer.log("LogoutSuccess");
+
+    // Clear navigation history and go to the login form.
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/login',
+      (Route<dynamic> route) => false
+    );
+  }
+
+  void _onLogoutError(BuildContext context, Response response) {
+    developer.log("onLogoutError");
+
+    // Clear navigation history and go to the login form.
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/login',
+      (Route<dynamic> route) => false
+    );
+
+    // Briefly show the error message.
+    String err = response.body;
+    final snackBar = SnackBar(content: Text(err));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _onSettingsPressed(BuildContext context) {
+    developer.log("_onSettingsPressed");
+    //TODO: Navigator.pushNamed(context, '/settings');
+  }
+
 
   void _onDoorButtonPressed(BuildContext context, int actionId) {
     developer.log("onDoorButtonPressed");
@@ -144,9 +200,12 @@ class _MyAppState extends State<MyApp> {
         },
         '/login': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
         '/login/try': (context) => LoginWaitView(title: constants.APP_NAME),
+        '/logout/try': (context) => LoginWaitView(title: constants.APP_NAME),
         '/main': (context) => DoorButtonView(
           title: constants.APP_NAME,
           onButtonPressed: _onDoorButtonPressed,
+          onSettingsPressed: _onSettingsPressed,
+          onLogoutPressed: _onLogoutPressed,
           button1Pulsating: opener1State != OpenerStates.idle,
           button2Pulsating: opener2State != OpenerStates.idle,
         ),

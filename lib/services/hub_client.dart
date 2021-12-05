@@ -19,27 +19,40 @@ class HubClient {
     'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept',
   };
 
-  HubClient(String baseUrl, this.onInitialized) {
+  HubClient(String baseUrl) {
     this.baseUrl = Uri.parse(baseUrl);
-    loadSid();
   }
 
-  void loadSid() async {
-    developer.log("HubClient.loadSid()");
-    // Load session ID asynchronously.
-    SharedPreferences.getInstance().then((prefs) {
-      sid = prefs.getString("sid");
-      int sidExpiresMs = prefs.getInt("sid-expires") ?? 0;
-      sidExpires = DateTime.fromMillisecondsSinceEpoch(sidExpiresMs);
-      developer.log("HubClient.loadSid(): $sid");
+  FutureOr<void> _init(void _) async {}
+
+  void init(VoidCallback onInitialized, Function onError) async {
+    developer.log("HubClient.init()");
+    await loadSid();
+    developer.log("HubClient.init(): sid is $sid");
+    if (sid == null) {
       onInitialized();
-    });
+      return null;
+    }
+    checkSid(onInitialized, onError);
+    developer.log("HubClient.init(): end: sid is $sid");
   }
 
-  void saveSid() async {
+  Future<void> loadSid() async {
+    developer.log("HubClient.loadSid()");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    sid = prefs.getString("sid");
+    int sidExpiresMs = prefs.getInt("sid-expires") ?? 0;
+    sidExpires = DateTime.fromMillisecondsSinceEpoch(sidExpiresMs);
+    developer.log("HubClient.loadSid(): $sid");
+  }
+
+  Future<void> saveSid() async {
+    developer.log("HubClient.saveSid()");
     final prefs = await SharedPreferences.getInstance();
     if (sid == null) {
       prefs.remove("sid");
+      prefs.remove("sidExpires");
+      loadSid(); // Cause re-initialization; needed to make sure onInitialized() signal is sent.
     }
     else {
       prefs.setString("sid", sid!);
@@ -55,8 +68,10 @@ class HubClient {
 	}
 
   void _updateSidFromLoginResponse(String responseBody) {
+    developer.log("HubClient._updateSidFromLoginResponse()");
     // Extract session ID and session validity from response.
     final Map<String, dynamic> parsed = json.decode(responseBody);
+    developer.log("HubClient._updateSidFromLoginResponse() $parsed");
     sid = parsed['sid'];
     sidExpires = DateTime.parse(parsed['sid_expires']);
     saveSid();
@@ -124,6 +139,7 @@ class HubClient {
 	}
 
   Future<void> checkSid(VoidCallback onSuccess, Function onError) async {
+    developer.log("HubClient.checkSid()");
     if (sid == null) {
       return;
     }
@@ -139,8 +155,6 @@ class HubClient {
         onError(response);
         return;
       }
-
-      _updateSidFromLoginResponse(response.body);
     }
     on TimeoutException catch (e) {
       onError(http.Response(e.toString(), 408));

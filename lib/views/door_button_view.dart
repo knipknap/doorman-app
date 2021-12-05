@@ -2,17 +2,24 @@ import 'dart:developer' as developer;
 import 'package:doorman/components/pulsatingbutton.dart';
 import 'package:flutter/material.dart';
 
+// This is the type used by the popup menu below.
+enum MenuItems { logout, settings }
+
 class DoorButtonView extends StatefulWidget {
   const DoorButtonView({
     Key? key,
     required this.title,
     required this.onButtonPressed,
+    required this.onSettingsPressed,
+    required this.onLogoutPressed,
     this.button1Pulsating = false,
     this.button2Pulsating = false,
   }) : super(key: key);
 
   final String title;
   final Function onButtonPressed;
+  final Function onSettingsPressed;
+  final Function onLogoutPressed;
   final bool button1Pulsating;
   final bool button2Pulsating;
 
@@ -21,10 +28,6 @@ class DoorButtonView extends StatefulWidget {
 }
 
 class _DoorButtonViewState extends State<DoorButtonView> {
-  void _onMenuPressed() {
-    developer.log("Menu");
-  }
-
   void _onButton1Pressed(BuildContext context) {
     developer.log("Button1");
     widget.onButtonPressed(context, 1);
@@ -45,12 +48,31 @@ class _DoorButtonViewState extends State<DoorButtonView> {
     double buttonH = canvasH > 600 ? canvasH/2 : canvasH;
     buttonW = buttonW < buttonH ? buttonW : buttonH;
 
+    PopupMenuButton menuButton = PopupMenuButton<MenuItems>(
+      onSelected: (MenuItems result) {
+        if (result == MenuItems.settings) {
+          widget.onSettingsPressed(context);
+        }
+        else if (result == MenuItems.logout) {
+          widget.onLogoutPressed(context);
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItems>>[
+        const PopupMenuItem<MenuItems>(
+          value: MenuItems.settings,
+          child: Text('Settings'),
+        ),
+        const PopupMenuItem<MenuItems>(
+          value: MenuItems.logout,
+          child: Text('Logout'),
+        ),
+      ],
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          IconButton(onPressed: _onMenuPressed, icon: const Icon(Icons.menu)),
-        ],
+        actions: [ menuButton ],
       ),
       body: Center(
         child: Wrap(
