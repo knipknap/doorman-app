@@ -28,9 +28,6 @@ jobs:
         with:
           channel: beta
 
-      - name: Install NDK 23.1.7779620
-        run: $ANDROID_HOME/tools/bin/sdkmanager --install "ndk;23.1.7779620"
-
       - name: Flutter doctor
         run: flutter doctor -v
 
