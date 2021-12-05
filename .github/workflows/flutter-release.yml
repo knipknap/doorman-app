@@ -84,6 +84,7 @@ jobs:
   release-android:
     needs: [build]
     name: Upload to Google Play store
+    if: contains(github.ref, 'refs/tags/')    # Only upload tagged releases
 
     runs-on: ubuntu-latest
 
