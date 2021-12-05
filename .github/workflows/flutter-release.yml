@@ -23,17 +23,13 @@ jobs:
         with:
           java-version: '11.x'
 
-      - name: Android NDK toolchain Setup
-        uses: ravinderjangra/android-ndk-toolchain-setup@0.1
-        with:
-          api: '23' # make sure to keep in sync with the NDK API version in android/app/build.gradle
-          arch: 'arm'
-          install-location: 'toolchains'
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
           channel: beta
+
+      - name: Install NDK 23.1.7779620
+        run: $ANDROID_HOME/tools/bin/sdkmanager --install "ndk;23.1.7779620"
 
       - name: Flutter version
         run: flutter --version
