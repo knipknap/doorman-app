@@ -23,6 +23,13 @@ jobs:
         with:
           java-version: '11.x'
 
+      - name: Android NDK toolchain Setup
+        uses: ravinderjangra/android-ndk-toolchain-setup@0.1
+        with:
+          api: '23' # make sure to keep in sync with the NDK API version in android/app/build.gradle
+          arch: 'arm'
+          install-location: 'toolchains'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
@@ -66,7 +73,7 @@ jobs:
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
       - name: Build Android app bundle
-        run: flutter build appbundle --release --stacktrace --debug
+        run: flutter build appbundle --release
 
       - name: Upload the app bundle
         uses: actions/upload-artifact@v2
