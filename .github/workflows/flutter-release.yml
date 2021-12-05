@@ -108,7 +108,7 @@ jobs:
       - name: Create file
         run: |
           echo 'source "https://rubygems.org"' > Gemfile
-          echo 'gem "fastlane"' > Gemfile
+          echo 'gem "fastlane"' >> Gemfile
 
       - name: Download bundle dependencies
         run: |
