@@ -123,4 +123,5 @@ jobs:
         run: |
           bundle exec fastlane supply \
           --aab app-release.aab \
-          --track beta
+          --release_status draft \
+          --track internal
