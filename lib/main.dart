@@ -4,9 +4,9 @@ import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/services/hub_client.dart';
 import 'package:doorman/views/door_button_view.dart';
 import 'package:doorman/views/login_view.dart';
-import 'package:doorman/views/login_wait_view.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'views/load_screen_view.dart';
 
 enum OpenerStates {
   idle,
@@ -196,11 +196,11 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (context) {
           bcontext = context;
-          return LoginWaitView(title: constants.APP_NAME);
+          return LoadScreenView(title: constants.APP_NAME);
         },
         '/login': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
-        '/login/try': (context) => LoginWaitView(title: constants.APP_NAME),
-        '/logout/try': (context) => LoginWaitView(title: constants.APP_NAME),
+        '/login/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Trying to log in"),
+        '/logout/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Logging out"),
         '/main': (context) => DoorButtonView(
           title: constants.APP_NAME,
           onButtonPressed: _onDoorButtonPressed,

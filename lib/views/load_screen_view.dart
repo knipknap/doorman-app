@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:doorman/components/bezier_container.dart';
 
-class LoginWaitView extends StatefulWidget {
-  const LoginWaitView({
+class LoadScreenView extends StatefulWidget {
+  const LoadScreenView({
     Key? key,
     this.title,
+    this.status,
   }) : super(key: key);
 
   final String? title;
+  final String? status;
 
   @override
-  _LoginWaitViewState createState() => _LoginWaitViewState();
+  _LoadScreenViewState createState() => _LoadScreenViewState();
 }
 
-class _LoginWaitViewState extends State<LoginWaitView> with TickerProviderStateMixin {
+class _LoadScreenViewState extends State<LoadScreenView> with TickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -92,6 +94,17 @@ class _LoginWaitViewState extends State<LoginWaitView> with TickerProviderStateM
             Center(
               child: _buildAnimatedTitle(),
             ),
+            Column(
+              children: [
+                Expanded(child: Container(), flex: 50),
+                Expanded(
+                  child: Text(
+                    widget.status ?? "",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  flex: 1),
+              ],
+            )
           ],
         ),
       )
