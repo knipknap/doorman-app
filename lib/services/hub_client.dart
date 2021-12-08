@@ -1,38 +1,52 @@
 import 'dart:developer' as developer;
-import 'dart:async'; 
-import 'dart:convert'; 
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HubClient {
-  late final Uri baseUrl;
-  late final VoidCallback onInitialized;
+  Uri? baseUrl;
   String? sid;
   DateTime sidExpires = DateTime.now();
   final Duration timeout = Duration(seconds: 10);
 
   final Map<String,String> headers = {
-    'Content-type' : 'application/json', 
+    'Content-type' : 'application/json',
     'Accept': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept',
   };
 
-  HubClient(String baseUrl) {
-    this.baseUrl = Uri.parse(baseUrl);
-  }
-
-  void init(VoidCallback onInitialized, Function onError) async {
+  void init(String baseUrl, VoidCallback onInitialized, Function onError) async {
     developer.log("HubClient.init()");
-    await loadSid();
-    developer.log("HubClient.init(): sid is $sid");
-    if (sid == null) {
-      onInitialized();
-      return null;
+
+    Uri? url;
+    try {
+      url = Uri.parse(baseUrl);
     }
-    checkSid(onInitialized, onError);
-    developer.log("HubClient.init(): end: sid is $sid");
+    on FormatException {
+      onError(http.Response("Invalid server URL; check your hostname", 418));
+      return;
+    }
+
+    _isReachable(url, () async {
+      this.baseUrl = url;
+
+      // If we don't have a SID, initialization is complete and we are
+      // ready to log in.
+      await loadSid();
+      developer.log("HubClient.init(): sid is $sid");
+      if (sid == null) {
+        onInitialized();
+        return;
+      }
+
+      // Otherwise, we have yet to check if the SID is still valid.
+      checkSid(onInitialized, onError);
+      developer.log("HubClient.init(): end: sid is $sid");
+
+    }, onError);
   }
 
   Future<void> loadSid() async {
@@ -75,18 +89,41 @@ class HubClient {
     saveSid();
   }
 
+  Future<void> _isReachable(url, VoidCallback onSuccess, Function onError) async {
+    url = url.replace(path: "/api/info/1.0/hello");
+    try {
+      final response = await http.get(url).timeout(timeout);
+
+      if (response.statusCode != 200) {
+        onError(response);
+        return;
+      }
+    }
+    on TimeoutException catch (e) {
+      onError(http.Response(e.toString(), 408));
+      return;
+    }
+    on Exception catch(e) {
+      developer.log(e.toString());
+      onError(http.Response(e.toString(), 418));
+      return;
+    }
+
+    onSuccess();
+	}
+
   Future<void> passwordLogin(String username,
                      String password,
                      VoidCallback onSuccess,
                      Function onError) async {
-    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/start");
+    Uri url = baseUrl!.replace(path: "/api/auth/1.0/session/start");
     Map<String, String> params = {"username": username, "password": password};
     var body = json.encode(params);
 
     try {
       final response = await http.post(url, body: body, headers: headers).timeout(timeout);
 
-      if (response.statusCode != 200) { 
+      if (response.statusCode != 200) {
         onError(response);
         return;
       }
@@ -109,14 +146,14 @@ class HubClient {
   Future<void> googleLogin(String authToken,
                            Function onSuccess,
                            Function onError) async {
-    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/start_google");
+    Uri url = baseUrl!.replace(path: "/api/auth/1.0/session/start_google");
     Map<String, String> params = {"id_token": authToken};
     var body = json.encode(params);
 
     try {
-      final response = await http.post(url, body: body, headers: headers).timeout(timeout); 
+      final response = await http.post(url, body: body, headers: headers).timeout(timeout);
 
-      if (response.statusCode != 200) { 
+      if (response.statusCode != 200) {
         onError(response);
         return;
       }
@@ -142,14 +179,14 @@ class HubClient {
       return;
     }
 
-    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/check");
+    Uri url = baseUrl!.replace(path: "/api/auth/1.0/session/check");
     Map<String, String> params = {"sid": sid!};
     var body = json.encode(params);
 
     try {
-      final response = await http.post(url, body: body, headers: headers).timeout(timeout); 
+      final response = await http.post(url, body: body, headers: headers).timeout(timeout);
 
-      if (response.statusCode != 200) { 
+      if (response.statusCode != 200) {
         onError(response);
         return;
       }
@@ -172,14 +209,14 @@ class HubClient {
       return;
     }
 
-    Uri url = baseUrl.replace(path: "/api/auth/1.0/session/end");
+    Uri url = baseUrl!.replace(path: "/api/auth/1.0/session/end");
     Map<String, String> params = {"sid": sid!};
     var body = json.encode(params);
 
     try {
-      final response = await http.post(url, body: body, headers: headers).timeout(timeout); 
+      final response = await http.post(url, body: body, headers: headers).timeout(timeout);
 
-      if (response.statusCode != 200) { 
+      if (response.statusCode != 200) {
         onError(response);
         return;
       }
@@ -200,13 +237,13 @@ class HubClient {
 	}
 
   Future<void> trigger(int actionId, VoidCallback onSuccess, Function onError) async {
-    Uri url = baseUrl.replace(path: "/api/action/1.0/action/start");
+    Uri url = baseUrl!.replace(path: "/api/action/1.0/action/start");
     Map<String, String> params = {"sid": sid!, "id": actionId.toString()};
     var body = json.encode(params);
 
     try {
-      final response = await http.post(url, body: body, headers: headers).timeout(timeout); 
-      if (response.statusCode != 200) { 
+      final response = await http.post(url, body: body, headers: headers).timeout(timeout);
+      if (response.statusCode != 200) {
         onError(response);
         return;
       }

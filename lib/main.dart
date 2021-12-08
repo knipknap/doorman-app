@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'package:doorman/constants.dart' as constants;
-import 'package:doorman/services/hub_client.dart';
-import 'package:doorman/views/door_button_view.dart';
-import 'package:doorman/views/login_view.dart';
+import 'package:doorman/views/hostname_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'constants.dart' as constants;
+import 'services/hub_client.dart';
+import 'views/door_button_view.dart';
+import 'views/login_view.dart';
 import 'views/load_screen_view.dart';
+import 'views/settings_view.dart';
 
 enum OpenerStates {
   idle,
@@ -14,8 +19,121 @@ enum OpenerStates {
   opening
 }
 
+final HubClient client = HubClient();
+
+Future<void> _connect(VoidCallback onInitialized, Function onError) async {
+  SharedPreferences.getInstance().then((prefs) {
+    String? hostname = prefs.getString('hostname');
+    String hubUrl = "http://$hostname:${constants.HUB_PORT}";
+    developer.log("_connect() $hubUrl");
+    client.init(hubUrl, onInitialized, onError);
+  });
+}
+
+void pushNamedReplace(navigator, String name, {Object? arguments}) {
+  WidgetsBinding.instance!.addPostFrameCallback((_) {
+    navigator.pushReplacementNamed(name, arguments: arguments);
+  });
+}
+
+class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> implements NavigatorObserver {
+  @override
+  void didReplace({ Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    developer.log("GlobalNavigatorObserver.didReplace() from $oldRoute to $newRoute");
+    if (newRoute == null || newRoute == oldRoute) {
+      return;
+    }
+    didPush(newRoute, oldRoute);
+  }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    String prevRouteName = previousRoute == null ? "null" : previousRoute.settings.name as String;
+    String? routeName = route.settings.name;
+    developer.log("GlobalNavigatorObserver.didPush() from $prevRouteName to $routeName");
+
+    switch (routeName) {
+    case "/":
+      // Shows load screen.
+      //   - if app already initialized (i.e. hostname was set), go to /connect
+      //   - if not initialized, go to /init
+      SharedPreferences.getInstance().then((prefs) {
+        if (prefs.containsKey('hostname')) {
+          developer.log("GlobalNavigatorObserver.didPush() pushing /connect");
+          pushNamedReplace(route.navigator!, '/connect');
+        }
+        else {
+          developer.log("GlobalNavigatorObserver.didPush() pushing /init");
+          pushNamedReplace(route.navigator!, '/init');
+        }
+      });
+      return;
+
+    case "/init":
+      // Shows form to enter hostname
+      return;
+
+    case "/connect":
+      // Shows load screen, attempt to reach hub.
+      //   - if reached, go to /login/try
+      //   - if not reached, go to /init
+      _connect(() {
+        developer.log("GlobalNavigatorObserver.didPush() pushing /autologin");
+        pushNamedReplace(route.navigator!, '/autologin');
+      },
+      (response) {
+        developer.log("GlobalNavigatorObserver.didPush() error: ${response.statusCode} ${response.body}, pushing /init");
+        pushNamedReplace(
+          route.navigator!,
+          '/init',
+          arguments: HostnameViewArguments(response.body),
+        );
+      });
+      return;
+
+    case "/autologin":
+      // Shows load screen, check if logged in.
+      //   - if already logged in, go straight to /main
+      //   - otherwise, go to /login
+      if (client.isLoggedIn()) {
+        developer.log("GlobalNavigatorObserver.didPush(): Already logged in, going to main");
+        pushNamedReplace(route.navigator!, '/main');
+        return;
+      }
+
+      // Clear navigation history and go to the login form.
+      developer.log("GlobalNavigatorObserver.didPush(): Not yet logged in, going to login page");
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        route.navigator!.pushNamedAndRemoveUntil(
+          '/login',
+          (Route<dynamic> route) => false
+        );
+        route.navigator!.pushReplacementNamed('/login');
+      });
+      return;
+
+    case "/login":
+      // Shows login form.
+      return;
+    }
+  }
+}
+
+//final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+final GlobalNavigatorObserver routeObserver = GlobalNavigatorObserver();
+
 void main() {
-  runApp(MyApp());
+  initSettings().then((_) {
+    runApp(
+      MyApp()
+    );
+  });
+}
+
+Future<void> initSettings() async {
+  await Settings.init(
+    cacheProvider: SharePreferenceCache(),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -26,43 +144,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  BuildContext? bcontext;
-  late final HubClient client;
   OpenerStates opener1State = OpenerStates.idle;
   OpenerStates opener2State = OpenerStates.idle;
 
-  _MyAppState() {
-    developer.log("_MyAppState()");
-    client = HubClient(constants.DOORMAN_URL);
-    client.init(_onClientInitialized, _onInitializationError);
-    developer.log("_MyAppState() done");
-  }
-
-  void _onClientInitialized() {
-    developer.log("_onClientInitialized");
-    if (client.isLoggedIn()) {
-      developer.log("_onClientInitialized(): Already logged in, going straight to main");
-      Navigator.pushReplacementNamed(bcontext!, '/main');
-    }
-    else {
-      developer.log("_onClientInitialized(): Not yet logged in, going to login page");
-      Navigator.pushReplacementNamed(bcontext!, '/login');
-    }
-  }
-
-  void _onInitializationError(Response response) {
-    developer.log("_onInitializationError");
-
-    // Clear navigation history and go to the login form.
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/login',
-      (Route<dynamic> route) => false
-    );
-
-    // Briefly show the error message.
+  void _showErrorResponse(Response response) {
+    // Briefly show the error message as a SnackBar.
     String err = response.body;
+    developer.log("_showErrorResponse() $response $err");
     final snackBar = SnackBar(content: Text(err));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _onInitNextPressed(BuildContext context, String hostname) {
+    developer.log("_onInitNextPressed");
+    SharedPreferences.getInstance().then((prefs) {
+      developer.log("_onInitNextPressed() Pushing /connect");
+      prefs.setString('hostname', hostname);
+      Navigator.pushReplacementNamed(context, '/connect');
+      developer.log("_onInitNextPressed() Pushed /connect");
+    });
   }
 
   void _onLoginPressed(BuildContext context, String email, String password) {
@@ -122,16 +222,13 @@ class _MyAppState extends State<MyApp> {
     );
 
     // Briefly show the error message.
-    String err = response.body;
-    final snackBar = SnackBar(content: Text(err));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    _showErrorResponse(response);
   }
 
   void _onSettingsPressed(BuildContext context) {
     developer.log("_onSettingsPressed");
-    //TODO: Navigator.pushNamed(context, '/settings');
+    Navigator.pushNamed(context, '/settings');
   }
-
 
   void _onDoorButtonPressed(BuildContext context, int actionId) {
     developer.log("onDoorButtonPressed");
@@ -181,23 +278,23 @@ class _MyAppState extends State<MyApp> {
     }
 
     // Briefly show the error message.
-    final snackBar = SnackBar(content: Text(response.body));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    _showErrorResponse(response);
   }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [ routeObserver ],
       title: constants.APP_NAME,
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
       routes: {
-        '/': (context) {
-          bcontext = context;
-          return LoadScreenView(title: constants.APP_NAME);
-        },
+        '/': (context) => LoadScreenView(title: constants.APP_NAME),
+        '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
+        '/connect': (context) => LoadScreenView(title: constants.APP_NAME, status: "Connecting"),
+        '/autologin': (context) => LoadScreenView(title: constants.APP_NAME, status: "Trying to log in automatically"),
         '/login': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
         '/login/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Trying to log in"),
         '/logout/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Logging out"),
@@ -209,6 +306,7 @@ class _MyAppState extends State<MyApp> {
           button1Pulsating: opener1State != OpenerStates.idle,
           button2Pulsating: opener2State != OpenerStates.idle,
         ),
+        '/settings': (context) => AppSettings(),
       },
     );
   }
