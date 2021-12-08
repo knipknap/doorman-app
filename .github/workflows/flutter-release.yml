@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print debug info
+        run: |
+          env
+          echo refs: ${{ github.refs }}
+
       - name: Checkout
         uses: actions/checkout@v1
 
