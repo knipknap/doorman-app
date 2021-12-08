@@ -5,6 +5,8 @@ on:
     branches:    
       - master
 
+  create
+
   release:
     types: [published]
 
