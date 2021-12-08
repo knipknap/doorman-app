@@ -5,7 +5,7 @@ on:
     branches:    
       - master
 
-  create
+  create:
 
   release:
     types: [published]
