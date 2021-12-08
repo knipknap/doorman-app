@@ -119,7 +119,6 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
   }
 }
 
-//final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 final GlobalNavigatorObserver routeObserver = GlobalNavigatorObserver();
 
 void main() {

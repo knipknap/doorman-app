@@ -19,27 +19,49 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  Widget _buildEntryField(String title, {bool isPassword = false, required TextEditingController ctr}) {
+  Widget _buildLabel(TextEditingController ctr, String text) {
+    return Text(
+      text,
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController ctr,
+                         {bool isPassword = false, Iterable<String>? autofillHints}) {
+    return TextField(
+      controller: ctr,
+      obscureText: isPassword,
+      autofillHints: autofillHints,
+      decoration: InputDecoration(
+          border: InputBorder.none,
+          focusColor: Colors.white,
+          fillColor: Colors.white,
+          filled: true));
+  }
+
+  Widget _buildUsernameField(String title, TextEditingController ctr) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: ctr,
-            obscureText: isPassword,
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                focusColor: Colors.white,
-                fillColor: Colors.white,
-                filled: true))
+          _buildLabel(ctr, title),
+          SizedBox(height: 10),
+          _buildTextField(ctr, autofillHints: [AutofillHints.username]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(String title, TextEditingController ctr) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildLabel(ctr, title),
+          SizedBox(height: 10),
+          _buildTextField(ctr, isPassword: true, autofillHints: [AutofillHints.password]),
         ],
       ),
     );
@@ -134,28 +156,30 @@ class _LoginViewState extends State<LoginView> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: height * .2),
-                  _buildTitle(),
-                  SizedBox(height: 50),
-                  _buildEntryField("Email", ctr: emailController),
-                  _buildEntryField("Password", ctr: passwordController, isPassword: true),
-                  SizedBox(height: 20),
-                  _buildLoginButton(context),
-                  /*Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.centerRight,
-                    child: Text('Forgot Password ?',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
-                  ),
-                  SizedBox(height: height * .055),
-                  _buildAccountLabel(),
-                  */
-                ],
+              child: AutofillGroup(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: height * .2),
+                    _buildTitle(),
+                    SizedBox(height: 50),
+                    _buildUsernameField("Email", emailController),
+                    _buildPasswordField("Password", passwordController),
+                    SizedBox(height: 20),
+                    _buildLoginButton(context),
+                    /*Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      alignment: Alignment.centerRight,
+                      child: Text('Forgot Password ?',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500)),
+                    ),
+                    SizedBox(height: height * .055),
+                    _buildAccountLabel(),
+                    */
+                  ],
+                ),
               ),
             ),
           ),
