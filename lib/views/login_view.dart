@@ -19,50 +19,26 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  Widget _buildLabel(TextEditingController ctr, String text) {
-    return Text(
-      text,
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController ctr,
-                         {bool isPassword = false, Iterable<String>? autofillHints}) {
-    return TextField(
-      controller: ctr,
-      obscureText: isPassword,
-      autofillHints: autofillHints,
-      decoration: InputDecoration(
-          border: InputBorder.none,
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          filled: true));
-  }
-
   Widget _buildUsernameField(String title, TextEditingController ctr) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _buildLabel(ctr, title),
-          SizedBox(height: 10),
-          _buildTextField(ctr, autofillHints: [AutofillHints.username]),
-        ],
+    return TextFormField(
+      controller: ctr,
+      autofillHints: const [AutofillHints.username],
+      decoration: InputDecoration(
+        labelText: title,
       ),
     );
   }
 
   Widget _buildPasswordField(String title, TextEditingController ctr) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _buildLabel(ctr, title),
-          SizedBox(height: 10),
-          _buildTextField(ctr, isPassword: true, autofillHints: [AutofillHints.password]),
-        ],
+    return TextFormField(
+      controller: ctr,
+      obscureText: true,
+      autofillHints: const [AutofillHints.password],
+      onFieldSubmitted: (_) {
+        widget.onLoginPressed(context, emailController.text, passwordController.text);
+      },
+      decoration: InputDecoration(
+        labelText: title,
       ),
     );
   }
@@ -86,7 +62,9 @@ class _LoginViewState extends State<LoginView> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
-      onPressed: () => { widget.onLoginPressed(context, emailController.text, passwordController.text) },
+      onPressed: () {
+        widget.onLoginPressed(context, emailController.text, passwordController.text);
+      },
     );
   }
 
@@ -163,8 +141,9 @@ class _LoginViewState extends State<LoginView> {
                   children: <Widget>[
                     SizedBox(height: height * .2),
                     _buildTitle(),
-                    SizedBox(height: 50),
+                    SizedBox(height: 150),
                     _buildUsernameField("Email", emailController),
+                    SizedBox(height: 10),
                     _buildPasswordField("Password", passwordController),
                     SizedBox(height: 20),
                     _buildLoginButton(context),

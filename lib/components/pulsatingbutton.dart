@@ -80,7 +80,6 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
         children: [
           _buildCircle(200),
           Text(text, style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
-          //const Align(child: Icon(Icons.phone_android, size: 44,)),
         ],
       ),
     );
@@ -92,7 +91,7 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
       height: radius,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.indigo.withOpacity(opacity),
+        color: Theme.of(context).colorScheme.secondary.withOpacity(opacity),
       ),
     );
   }

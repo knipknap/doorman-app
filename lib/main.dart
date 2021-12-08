@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'package:doorman/theme.dart';
 import 'package:doorman/views/hostname_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
@@ -286,9 +287,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorObservers: [ routeObserver ],
       title: constants.APP_NAME,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
+      theme: themeData,
       routes: {
         '/': (context) => LoadScreenView(title: constants.APP_NAME),
         '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
