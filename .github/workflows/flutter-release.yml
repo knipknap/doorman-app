@@ -1,14 +1,13 @@
 name: Flutter release
 
 on:
+  workflow_dispatch:
+  
   push:
     branches:    
       - master
 
   create:
-
-  release:
-    types: [published]
 
 jobs:
   build:
@@ -19,8 +18,8 @@ jobs:
     steps:
       - name: Print debug info
         run: |
+          echo github.ref: ${{github.ref}}
           env
-          echo ref: ${{ github.refs }}
 
       - name: Checkout
         uses: actions/checkout@v1
