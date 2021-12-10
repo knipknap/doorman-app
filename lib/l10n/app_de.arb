@@ -12,6 +12,8 @@
     "login": "Login",
     "invalidCredentials": "Ungültige Zugangsdaten, bitte versuche es noch einmal.",
 
+    "button1DefaultLabel": "Tor\n+\nHaustür",
+    "button2DefaultLabel": "Wohnungstür",
     "settings": "Einstellungen",
     "logout": "Ausloggen",
 
@@ -20,5 +22,9 @@
     "errInvalidHostname": "Hostname-Format ungültig",
     "portNumber": "Port",
     "errMissingPortNumber": "Port muss angegeben werden",
-    "errInvalidPortNumber": "Ungültige Portnummer."
+    "errInvalidPortNumber": "Ungültige Portnummer",
+
+    "buttonSettings": "Tasterbeschriftung",
+    "buttonLabel": "{count, plural, zero{Erster Taster} one{Zweiter Taster} other{Taster {count}}}",
+    "errLabelTooLong": "Text zu lang"
 }

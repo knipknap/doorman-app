@@ -42,11 +42,19 @@
       "description": "As a response to login failure."
     },
 
+    "button1DefaultLabel": "Front Door",
+    "@button1DefaultLabel": {
+      "description": "Default label of opener button 1."
+    },
+    "button2DefaultLabel": "Apartment",
+    "@button2DefaultLabel": {
+      "description": "Default label of opener button 2."
+    },
     "settings": "Settings",
     "@settings": {
       "description": "Entry in the menu on the main page."
     },
-    "logout": "Login",
+    "logout": "Logout",
     "@logout": {
       "description": "Entry in the menu on the main page."
     },
@@ -71,8 +79,26 @@
     "@errMissingPortNumber": {
       "description": "As a response to leaving the port entered into the settings page empty."
     },
-    "errInvalidPortNumber": "Invalid port number.",
+    "errInvalidPortNumber": "Invalid port number",
     "@errInvalidPortNumber": {
       "description": "As a response to a wrong port entered into the settings page."
+    },
+
+    "buttonSettings": "Button settings",
+    "@buttonSettings": {
+      "description": "Title of the settings group in the settings page."
+    },
+    "buttonLabel": "{count, plural, zero{First button text} one{Second button text} other{Button {count}}}",
+    "@buttonLabel": {
+      "description": "Label of a setting in the settings page.",
+      "placeholders": {
+       "count": {
+          "type": "int"
+        }
+      }
+    },
+    "errLabelTooLong": "Text too long",
+    "@errLabelTooLong": {
+      "description": "As a response to entering too much text into the entry field."
     }
 }

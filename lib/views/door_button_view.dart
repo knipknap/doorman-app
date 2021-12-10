@@ -81,7 +81,7 @@ class _DoorButtonViewState extends State<DoorButtonView> {
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
               child: PulsatingButton (
-                text: "Gate\n+\nFront Door",
+                text: AppLocalizations.of(context)!.button1DefaultLabel,
                 pulsating: widget.button1Pulsating,
                 onTap: (context) { _onButton1Pressed(context); },
               ),
@@ -89,7 +89,7 @@ class _DoorButtonViewState extends State<DoorButtonView> {
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
               child: PulsatingButton (
-                text: "Apartment",
+                text: AppLocalizations.of(context)!.button2DefaultLabel,
                 pulsating: widget.button2Pulsating,
                 onTap: (context) { _onButton2Pressed(context); },
               ),
