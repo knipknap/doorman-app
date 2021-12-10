@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart' as constants;
@@ -14,12 +16,6 @@ import 'views/hostname_view.dart';
 import 'views/login_view.dart';
 import 'views/load_screen_view.dart';
 import 'views/settings_view.dart';
-
-enum OpenerStates {
-  idle,
-  starting,
-  opening
-}
 
 final HubClient client = HubClient();
 
@@ -145,9 +141,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  OpenerStates opener1State = OpenerStates.idle;
-  OpenerStates opener2State = OpenerStates.idle;
-
   void _showErrorResponse(Response response) {
     // Briefly show the error message as a SnackBar.
     String err = response.body;
@@ -235,12 +228,7 @@ class _MyAppState extends State<MyApp> {
     developer.log("onDoorButtonPressed");
 
     // Update the state of the buttons such that animations start.
-    if (actionId == 1) {
-      setState(() { opener1State = OpenerStates.starting; });
-    }
-    if (actionId == 2) {
-      setState(() { opener2State = OpenerStates.starting; });
-    }
+    Provider.of<MainModel>(context, listen: false).pushButton(actionId);
 
     // Send REST request.
     client.trigger(actionId,
@@ -252,31 +240,21 @@ class _MyAppState extends State<MyApp> {
     developer.log("onTriggerSuccess");
 
     // Set state to "opening" for a few seconds, then back to "idle".
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.setButtonState(actionId, ButtonState.opening);
+
     Duration duration = Duration(seconds: 3);
-    if (actionId == 1) {
-      setState(() { opener1State = OpenerStates.opening; });
-      Timer(duration, () {
-        setState(() { opener1State = OpenerStates.idle; });
-      });
-    }
-    if (actionId == 2) {
-      setState(() { opener2State = OpenerStates.starting; });
-      Timer(duration, () {
-        setState(() { opener2State = OpenerStates.idle; });
-      });
-    }
+    Timer(duration, () {
+        mainModel.setButtonState(actionId, ButtonState.idle);
+    });
   }
 
   void _onTriggerError(BuildContext context, int actionId, Response response) {
     developer.log("onTriggerError");
 
     // Reset button state.
-    if (actionId == 1) {
-      setState(() { opener1State = OpenerStates.idle; });
-    }
-    if (actionId == 2) {
-      setState(() { opener2State = OpenerStates.idle; });
-    }
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.setButtonState(actionId, ButtonState.idle);
 
     // Briefly show the error message.
     _showErrorResponse(response);
@@ -285,45 +263,46 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorObservers: [ routeObserver ],
-      title: constants.APP_NAME,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      theme: themeData,
-      routes: {
-        '/': (context) => LoadScreenView(title: constants.APP_NAME),
-        '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
-        '/connect': (context) => LoadScreenView(
-          title: constants.APP_NAME,
-          status: AppLocalizations.of(context)!.statusConnecting,
-        ),
-        '/autologin': (context) => LoadScreenView(
-          title: constants.APP_NAME,
-          status: AppLocalizations.of(context)!.statusAutologin,
-        ),
-        '/login': (context) => LoginView(
-          title: constants.APP_NAME,
-          onLoginPressed: _onLoginPressed
-        ),
-        '/login/try': (context) => LoadScreenView(
-          title: constants.APP_NAME,
-          status: AppLocalizations.of(context)!.statusLogin,
-        ),
-        '/logout/try': (context) => LoadScreenView(
-          title: constants.APP_NAME,
-          status: AppLocalizations.of(context)!.statusLogout,
-        ),
-        '/main': (context) => DoorButtonView(
-          title: constants.APP_NAME,
-          onButtonPressed: _onDoorButtonPressed,
-          onSettingsPressed: _onSettingsPressed,
-          onLogoutPressed: _onLogoutPressed,
-          button1Pulsating: opener1State != OpenerStates.idle,
-          button2Pulsating: opener2State != OpenerStates.idle,
-        ),
-        '/settings': (context) => AppSettings(),
-      },
+    return ChangeNotifierProvider(
+      create: (context) => MainModel(),
+      child: MaterialApp(
+        navigatorObservers: [ routeObserver ],
+        title: constants.APP_NAME,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: themeData,
+        routes: {
+          '/': (context) => LoadScreenView(title: constants.APP_NAME),
+          '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
+          '/connect': (context) => LoadScreenView(
+            title: constants.APP_NAME,
+            status: AppLocalizations.of(context)!.statusConnecting,
+          ),
+          '/autologin': (context) => LoadScreenView(
+            title: constants.APP_NAME,
+            status: AppLocalizations.of(context)!.statusAutologin,
+          ),
+          '/login': (context) => LoginView(
+            title: constants.APP_NAME,
+            onLoginPressed: _onLoginPressed
+          ),
+          '/login/try': (context) => LoadScreenView(
+            title: constants.APP_NAME,
+            status: AppLocalizations.of(context)!.statusLogin,
+          ),
+          '/logout/try': (context) => LoadScreenView(
+            title: constants.APP_NAME,
+            status: AppLocalizations.of(context)!.statusLogout,
+          ),
+          '/main': (context) => DoorButtonView(
+            title: constants.APP_NAME,
+            onButtonPressed: _onDoorButtonPressed,
+            onSettingsPressed: _onSettingsPressed,
+            onLogoutPressed: _onLogoutPressed,
+          ),
+          '/settings': (context) => AppSettings(),
+        },
+      ),
     );
   }
 }

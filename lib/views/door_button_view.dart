@@ -1,7 +1,9 @@
-import 'dart:developer' as developer;
+import 'package:doorman/models/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/components/pulsatingbutton.dart';
+import 'package:provider/provider.dart';
 
 // This is the type used by the popup menu below.
 enum MenuItems { logout, settings }
@@ -29,14 +31,30 @@ class DoorButtonView extends StatefulWidget {
 }
 
 class _DoorButtonViewState extends State<DoorButtonView> {
-  void _onButton1Pressed(BuildContext context) {
-    developer.log("Button1");
-    widget.onButtonPressed(context, 1);
+  Widget _button1Builder(BuildContext context, MainModel mainModel, Widget? child) {
+    Button button = mainModel.getButton(1);
+    String defaultLabel = AppLocalizations.of(context)!.button1DefaultLabel;
+    return PulsatingButton (
+      text: button.label ?? defaultLabel,
+      pulsating: button.state != ButtonState.idle,
+      onTap: (context) {
+        mainModel.pushButton(1);
+        widget.onButtonPressed(context, 1);
+      },
+    );
   }
 
-  void _onButton2Pressed(BuildContext context) {
-    developer.log("Button2");
-    widget.onButtonPressed(context, 2);
+  Widget _button2Builder(BuildContext context, MainModel mainModel, Widget? child) {
+    Button button = mainModel.getButton(2);
+    String defaultLabel = AppLocalizations.of(context)!.button2DefaultLabel;
+    return PulsatingButton (
+      text: button.label ?? defaultLabel,
+      pulsating: button.state != ButtonState.idle,
+      onTap: (context) {
+        mainModel.pushButton(2);
+        widget.onButtonPressed(context, 2);
+      },
+    );
   }
 
   @override
@@ -80,19 +98,11 @@ class _DoorButtonViewState extends State<DoorButtonView> {
           children: <Widget>[
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
-              child: PulsatingButton (
-                text: AppLocalizations.of(context)!.button1DefaultLabel,
-                pulsating: widget.button1Pulsating,
-                onTap: (context) { _onButton1Pressed(context); },
-              ),
+              child: Consumer<MainModel>(builder: _button1Builder),
             ),
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
-              child: PulsatingButton (
-                text: AppLocalizations.of(context)!.button2DefaultLabel,
-                pulsating: widget.button2Pulsating,
-                onTap: (context) { _onButton2Pressed(context); },
-              ),
+              child: Consumer<MainModel>(builder: _button2Builder),
             ),
           ],
         ),
