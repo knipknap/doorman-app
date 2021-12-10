@@ -16,6 +16,8 @@
 .idea/
 
 # My assets
+*.xcf
+assets/logo-github.png
 assets/screenshot*.png
 
 # The .vscode folder contains launch configuration and tasks you configure in

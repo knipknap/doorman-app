@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'package:doorman/theme.dart';
-import 'package:doorman/views/hostname_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart' as constants;
+import 'theme.dart';
 import 'services/hub_client.dart';
 import 'views/door_button_view.dart';
+import 'views/hostname_view.dart';
 import 'views/login_view.dart';
 import 'views/load_screen_view.dart';
 import 'views/settings_view.dart';
@@ -187,7 +188,7 @@ class _MyAppState extends State<MyApp> {
     // Briefly show the error message.
     String err = response.body;
     if (response.statusCode == 401) {
-      err = "Invalid credentials, please try again.";
+      err = AppLocalizations.of(context)!.invalidCredentials;
     }
     final snackBar = SnackBar(content: Text(err));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -287,15 +288,32 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorObservers: [ routeObserver ],
       title: constants.APP_NAME,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: themeData,
       routes: {
         '/': (context) => LoadScreenView(title: constants.APP_NAME),
         '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
-        '/connect': (context) => LoadScreenView(title: constants.APP_NAME, status: "Connecting"),
-        '/autologin': (context) => LoadScreenView(title: constants.APP_NAME, status: "Trying to log in automatically"),
-        '/login': (context) => LoginView(title: constants.APP_NAME, onLoginPressed: _onLoginPressed),
-        '/login/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Trying to log in"),
-        '/logout/try': (context) => LoadScreenView(title: constants.APP_NAME, status: "Logging out"),
+        '/connect': (context) => LoadScreenView(
+          title: constants.APP_NAME,
+          status: AppLocalizations.of(context)!.statusConnecting,
+        ),
+        '/autologin': (context) => LoadScreenView(
+          title: constants.APP_NAME,
+          status: AppLocalizations.of(context)!.statusAutologin,
+        ),
+        '/login': (context) => LoginView(
+          title: constants.APP_NAME,
+          onLoginPressed: _onLoginPressed
+        ),
+        '/login/try': (context) => LoadScreenView(
+          title: constants.APP_NAME,
+          status: AppLocalizations.of(context)!.statusLogin,
+        ),
+        '/logout/try': (context) => LoadScreenView(
+          title: constants.APP_NAME,
+          status: AppLocalizations.of(context)!.statusLogout,
+        ),
         '/main': (context) => DoorButtonView(
           title: constants.APP_NAME,
           onButtonPressed: _onDoorButtonPressed,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/components/bezier_container.dart';
 
@@ -47,7 +48,7 @@ class _HostnameViewState extends State<HostnameView> {
           )
         ),
         child: Text(
-          'Next',
+          AppLocalizations.of(context)!.next,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
@@ -104,7 +105,7 @@ class _HostnameViewState extends State<HostnameView> {
                   SizedBox(height: height * .2),
                   _buildTitle(),
                   SizedBox(height: 150),
-                  _buildHostnameField("Hostname"),
+                  _buildHostnameField(AppLocalizations.of(context)!.hostname),
                   SizedBox(height: 20),
                   _buildNextButton(context),
                 ],

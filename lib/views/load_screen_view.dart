@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doorman/components/bezier_container.dart';
+import 'package:doorman/constants.dart' as constants;
 
 class LoadScreenView extends StatefulWidget {
   const LoadScreenView({
@@ -51,7 +52,7 @@ class _LoadScreenViewState extends State<LoadScreenView> with TickerProviderStat
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        text: 'Doorman',
+        text: constants.APP_NAME,
         style: TextStyle(
           shadows: <Shadow>[
             Shadow(

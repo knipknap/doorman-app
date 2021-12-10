@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/components/bezier_container.dart';
+import 'package:doorman/constants.dart' as constants;
 
 class LoginView extends StatefulWidget {
   const LoginView({
@@ -57,7 +59,7 @@ class _LoginViewState extends State<LoginView> {
           )
         ),
         child: Text(
-          'Login',
+          AppLocalizations.of(context)!.login,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
@@ -109,7 +111,7 @@ class _LoginViewState extends State<LoginView> {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        text: 'Doorman',
+        text: constants.APP_NAME,
         style: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w700,
@@ -142,9 +144,9 @@ class _LoginViewState extends State<LoginView> {
                     SizedBox(height: height * .2),
                     _buildTitle(),
                     SizedBox(height: 150),
-                    _buildUsernameField("Email", emailController),
+                    _buildUsernameField(AppLocalizations.of(context)!.email, emailController),
                     SizedBox(height: 10),
-                    _buildPasswordField("Password", passwordController),
+                    _buildPasswordField(AppLocalizations.of(context)!.password, passwordController),
                     SizedBox(height: 20),
                     _buildLoginButton(context),
                     /*Container(

@@ -1,0 +1,78 @@
+{
+    "statusConnecting": "Connecting",
+    "@statusConnecting": {
+      "description": "Status on the load screen."
+    },
+    "statusAutologin": "Trying to log in automatically",
+    "@statusAutologin": {
+      "description": "Status on the load screen."
+    },
+    "statusLogin": "Trying to log in",
+    "@statusLogin": {
+      "description": "Status on the load screen."
+    },
+    "statusLogout": "Logging out",
+    "@statusLogout": {
+      "description": "Status on the load screen."
+    },
+
+    "hostname": "Hostname",
+    "@hostname": {
+      "description": "Label of the text field on the initial page and setting page."
+    },
+    "next": "Next",
+    "@next": {
+      "description": "Label of the button on the initial page."
+    },
+
+    "email": "Email",
+    "@email": {
+      "description": "Label of the text field on the login page."
+    },
+    "password": "Password",
+    "@password": {
+      "description": "Label of the text field on the login page."
+    },
+    "login": "Login",
+    "@login": {
+      "description": "Label of the button on the login page."
+    },
+    "invalidCredentials": "Invalid credentials, please try again.",
+    "@invalidCredentials": {
+      "description": "As a response to login failure."
+    },
+
+    "settings": "Settings",
+    "@settings": {
+      "description": "Entry in the menu on the main page."
+    },
+    "logout": "Login",
+    "@logout": {
+      "description": "Entry in the menu on the main page."
+    },
+
+    "appSettings": "Application Settings",
+    "@appSettings": {
+      "description": "Title of the settings page."
+    },
+    "hubSettings": "Hub settings",
+    "@hubSettings": {
+      "description": "Title of the settings group in the settings page."
+    },
+    "errInvalidHostname": "Invalid hostname format",
+    "@errInvalidHostname": {
+      "description": "As a response to a wrong hostname entered into the settings page."
+    },
+    "portNumber": "Port number",
+    "@portNumber": {
+      "description": "Entry field label in the settings page."
+    },
+    "errMissingPortNumber": "A port number is required",
+    "@errMissingPortNumber": {
+      "description": "As a response to leaving the port entered into the settings page empty."
+    },
+    "errInvalidPortNumber": "Invalid port number.",
+    "@errInvalidPortNumber": {
+      "description": "As a response to a wrong port entered into the settings page."
+    }
+}

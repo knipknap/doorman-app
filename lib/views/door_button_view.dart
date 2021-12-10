@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
-import 'package:doorman/components/pulsatingbutton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:doorman/components/pulsatingbutton.dart';
 
 // This is the type used by the popup menu below.
 enum MenuItems { logout, settings }
@@ -58,13 +59,13 @@ class _DoorButtonViewState extends State<DoorButtonView> {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItems>>[
-        const PopupMenuItem<MenuItems>(
+        PopupMenuItem<MenuItems>(
           value: MenuItems.settings,
-          child: Text('Settings'),
+          child: Text(AppLocalizations.of(context)!.settings),
         ),
-        const PopupMenuItem<MenuItems>(
+        PopupMenuItem<MenuItems>(
           value: MenuItems.logout,
-          child: Text('Logout'),
+          child: Text(AppLocalizations.of(context)!.logout),
         ),
       ],
     );

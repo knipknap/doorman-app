@@ -1,0 +1,24 @@
+{
+    "statusConnecting": "Verbindungsaufbau",
+    "statusAutologin": "Automatischer Loginversuch",
+    "statusLogin": "Versuche einzuloggen",
+    "statusLogout": "Versuche auszuloggen",
+
+    "hostname": "Hostname",
+    "next": "Weiter",
+
+    "email": "Email",
+    "password": "Passwort",
+    "login": "Login",
+    "invalidCredentials": "Ungültige Zugangsdaten, bitte versuche es noch einmal.",
+
+    "settings": "Einstellungen",
+    "logout": "Ausloggen",
+
+    "appSettings": "Einstellungen",
+    "hubSettings": "Hub-Einstellungen",
+    "errInvalidHostname": "Hostname-Format ungültig",
+    "portNumber": "Port",
+    "errMissingPortNumber": "Port muss angegeben werden",
+    "errInvalidPortNumber": "Ungültige Portnummer."
+}
