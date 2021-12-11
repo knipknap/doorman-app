@@ -1,7 +1,9 @@
+import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/components/bezier_container.dart';
+import 'package:provider/provider.dart';
 
 class HostnameViewArguments {
   final String error;
@@ -24,13 +26,16 @@ class HostnameView extends StatefulWidget {
 class _HostnameViewState extends State<HostnameView> {
   TextEditingController hostnameController = TextEditingController();
 
-  Widget _buildHostnameField(String title) {
+  Widget _buildHostnameField(BuildContext context, MainModel mainModel, Widget? child) {
     return TextFormField(
       controller: hostnameController,
       decoration: InputDecoration(
-        labelText: title,
+        labelText: AppLocalizations.of(context)!.hostname,
       ),
-      onFieldSubmitted: (_) => widget.onNextPressed(context, hostnameController.text),
+      onFieldSubmitted: (text) {
+        mainModel.hubHostname = hostnameController.text;
+        widget.onNextPressed(context);
+      }
     );
   }
 
@@ -53,7 +58,7 @@ class _HostnameViewState extends State<HostnameView> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
-      onPressed: () => widget.onNextPressed(context, hostnameController.text),
+      onPressed: () => widget.onNextPressed(context),
     );
   }
 
@@ -105,7 +110,7 @@ class _HostnameViewState extends State<HostnameView> {
                   SizedBox(height: height * .2),
                   _buildTitle(),
                   SizedBox(height: 150),
-                  _buildHostnameField(AppLocalizations.of(context)!.hostname),
+                  Consumer<MainModel>(builder: _buildHostnameField),
                   SizedBox(height: 20),
                   _buildNextButton(context),
                 ],

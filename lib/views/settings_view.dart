@@ -43,32 +43,42 @@ class _AppSettingsState extends State<AppSettings> {
         SettingsGroup(
           title: AppLocalizations.of(context)!.hubSettings,
           children: <Widget>[
-            TextInputSettingsTile(
-              title: AppLocalizations.of(context)!.hostname,
-              settingKey: 'hostname',
-              validator: (String? hostname) {
-                if (hostname != null && hostname.length > 3) {
-                  return null;
-                }
-                return AppLocalizations.of(context)!.errInvalidHostname;
-              },
+            Consumer<MainModel>(
+              builder: (context, mainModel, child) => TextInputSettingsTile(
+                title: AppLocalizations.of(context)!.hostname,
+                settingKey: 'hostname',
+                validator: (String? hostname) {
+                  if (hostname != null && hostname.length > 3) {
+                    return null;
+                  }
+                  return AppLocalizations.of(context)!.errInvalidHostname;
+                },
+                onChange: (hostname) {
+                  mainModel.hubHostname = hostname;
+                },
+              ),
             ),
-            TextInputSettingsTile(
-              title: AppLocalizations.of(context)!.portNumber,
-              settingKey: 'port',
-              enabled: false,
-              validator: (String? port) {
-                if (port == null || port == "") {
-                  return AppLocalizations.of(context)!.errMissingPortNumber;
-                }
-                int? portInt = int.tryParse(port);
-                if (portInt == null
-                 || portInt < 1
-                 || portInt > 65536) {
-                  return AppLocalizations.of(context)!.errInvalidPortNumber;
-                }
-                return null;
-              },
+            Consumer<MainModel>(
+              builder: (context, mainModel, child) => TextInputSettingsTile(
+                title: AppLocalizations.of(context)!.portNumber,
+                settingKey: 'port',
+                enabled: false,
+                validator: (String? port) {
+                  if (port == null || port == "") {
+                    return AppLocalizations.of(context)!.errMissingPortNumber;
+                  }
+                  int? portInt = int.tryParse(port);
+                  if (portInt == null
+                  || portInt < 1
+                  || portInt > 65536) {
+                    return AppLocalizations.of(context)!.errInvalidPortNumber;
+                  }
+                  return null;
+                },
+                onChange: (port) {
+                  mainModel.hubPort = int.parse(port);
+                },
+              ),
             ),
           ],
         ),

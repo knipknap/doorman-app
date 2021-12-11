@@ -19,15 +19,6 @@ import 'views/settings_view.dart';
 
 final HubClient client = HubClient();
 
-Future<void> _connect(VoidCallback onInitialized, Function onError) async {
-  SharedPreferences.getInstance().then((prefs) {
-    String? hostname = prefs.getString('hostname');
-    String hubUrl = "http://$hostname:${constants.HUB_PORT}";
-    developer.log("_connect() $hubUrl");
-    client.init(hubUrl, onInitialized, onError);
-  });
-}
-
 void pushNamedReplace(navigator, String name, {Object? arguments}) {
   WidgetsBinding.instance!.addPostFrameCallback((_) {
     navigator.pushReplacementNamed(name, arguments: arguments);
@@ -55,16 +46,14 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
       // Shows load screen.
       //   - if app already initialized (i.e. hostname was set), go to /connect
       //   - if not initialized, go to /init
-      SharedPreferences.getInstance().then((prefs) {
-        if (prefs.containsKey('hostname')) {
-          developer.log("GlobalNavigatorObserver.didPush() pushing /connect");
-          pushNamedReplace(route.navigator!, '/connect');
-        }
-        else {
-          developer.log("GlobalNavigatorObserver.didPush() pushing /init");
-          pushNamedReplace(route.navigator!, '/init');
-        }
-      });
+      if (mainModel.hubHostname == null) {
+        developer.log("GlobalNavigatorObserver.didPush() pushing /init");
+        pushNamedReplace(route.navigator!, '/init');
+      }
+      else {
+        developer.log("GlobalNavigatorObserver.didPush() pushing /connect");
+        pushNamedReplace(route.navigator!, '/connect');
+      }
       return;
 
     case "/init":
@@ -75,18 +64,22 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
       // Shows load screen, attempt to reach hub.
       //   - if reached, go to /login/try
       //   - if not reached, go to /init
-      _connect(() {
-        developer.log("GlobalNavigatorObserver.didPush() pushing /autologin");
-        pushNamedReplace(route.navigator!, '/autologin');
-      },
-      (response) {
-        developer.log("GlobalNavigatorObserver.didPush() error: ${response.statusCode} ${response.body}, pushing /init");
-        pushNamedReplace(
-          route.navigator!,
-          '/init',
-          arguments: HostnameViewArguments(response.body),
-        );
-      });
+      developer.log("GlobalNavigatorObserver.didPush() connecting to ${mainModel.hubUrl}");
+      client.init(
+        mainModel.hubUrl,
+        () {
+          developer.log("GlobalNavigatorObserver.didPush() pushing /autologin");
+          pushNamedReplace(route.navigator!, '/autologin');
+        },
+        (response) {
+          developer.log("GlobalNavigatorObserver.didPush() error: ${response.statusCode} ${response.body}, pushing /init");
+          pushNamedReplace(
+            route.navigator!,
+            '/init',
+            arguments: HostnameViewArguments(response.body),
+          );
+        }
+      );
       return;
 
     case "/autologin":
@@ -151,11 +144,12 @@ class _MyAppState extends State<MyApp> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _onInitNextPressed(BuildContext context, String hostname) {
+  void _onInitNextPressed(BuildContext context) {
     developer.log("_onInitNextPressed");
     SharedPreferences.getInstance().then((prefs) {
-      developer.log("_onInitNextPressed() Pushing /connect");
-      prefs.setString('hostname', hostname);
+      developer.log("_onInitNextPressed() Pushing /connect ${mainModel.hubHostname}");
+      prefs.setString('hostname', mainModel.hubHostname ?? "");
+      prefs.setString('port', mainModel.hubPort.toString());
       Navigator.pushReplacementNamed(context, '/connect');
       developer.log("_onInitNextPressed() Pushed /connect");
     });

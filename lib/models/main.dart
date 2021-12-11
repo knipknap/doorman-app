@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:doorman/constants.dart' as constants;
 
 enum ButtonState {
   idle,
@@ -27,6 +28,9 @@ class Button extends ChangeNotifier {
 }
 
 class MainModel extends ChangeNotifier {
+  String? _hubHostname;
+  int _hubPort = constants.HUB_PORT;
+
   final List<Button> _buttons = [
     Button(),
     Button(),
@@ -40,9 +44,29 @@ class MainModel extends ChangeNotifier {
 
   Future<void> loadSharedPreferences() async {
     SharedPreferences.getInstance().then((prefs) {
+      _hubHostname = prefs.getString("hostname");
+      _hubPort = int.tryParse(prefs.getString("port") ?? "x") ?? _hubPort;
       getButton(1).label = prefs.getString("button1-label");
       getButton(2).label = prefs.getString("button2-label");
     });
+  }
+
+  String? get hubHostname => _hubHostname;
+
+  set hubHostname(hostname) {
+    _hubHostname = hostname != "" ? hostname : null;
+    notifyListeners();
+  }
+
+  int get hubPort => _hubPort;
+
+  set hubPort(port) {
+    _hubPort = port;
+    notifyListeners();
+  }
+
+  String get hubUrl {
+    return "http://$hubHostname:$hubPort";
   }
 
   void setButtonLabel(int id, String label) {
