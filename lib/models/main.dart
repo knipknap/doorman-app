@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:doorman/constants.dart' as constants;
+import 'package:doorman/services/hub_client.dart';
 
 enum ButtonState {
   idle,
@@ -28,6 +29,7 @@ class Button extends ChangeNotifier {
 }
 
 class MainModel extends ChangeNotifier {
+  final HubClient client = HubClient();
   String? _hubHostname;
   int _hubPort = constants.HUB_PORT;
 

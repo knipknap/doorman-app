@@ -10,14 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart' as constants;
 import 'theme.dart';
-import 'services/hub_client.dart';
 import 'views/door_button_view.dart';
 import 'views/hostname_view.dart';
 import 'views/login_view.dart';
 import 'views/load_screen_view.dart';
 import 'views/settings_view.dart';
-
-final HubClient client = HubClient();
 
 void pushNamedReplace(navigator, String name, {Object? arguments}) {
   WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -65,7 +62,7 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
       //   - if reached, go to /login/try
       //   - if not reached, go to /init
       developer.log("GlobalNavigatorObserver.didPush() connecting to ${mainModel.hubUrl}");
-      client.init(
+      mainModel.client.init(
         mainModel.hubUrl,
         () {
           developer.log("GlobalNavigatorObserver.didPush() pushing /autologin");
@@ -86,7 +83,7 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
       // Shows load screen, check if logged in.
       //   - if already logged in, go straight to /main
       //   - otherwise, go to /login
-      if (client.isLoggedIn()) {
+      if (mainModel.client.isLoggedIn()) {
         developer.log("GlobalNavigatorObserver.didPush(): Already logged in, going to main");
         pushNamedReplace(route.navigator!, '/main');
         return;
@@ -157,7 +154,7 @@ class _MyAppState extends State<MyApp> {
 
   void _onLoginPressed(BuildContext context, String email, String password) {
     developer.log("Login");
-    client.passwordLogin(email,
+    mainModel.client.passwordLogin(email,
                          password,
                          () => { _onLoginSuccess(context) },
                          (Response response) => { _onLoginError(context, response) });
@@ -186,7 +183,7 @@ class _MyAppState extends State<MyApp> {
   void _onLogoutPressed(BuildContext context) {
     developer.log("_onLogoutPressed");
 
-    client.logout(() => { _onLogoutSuccess(context) },
+    mainModel.client.logout(() => { _onLogoutSuccess(context) },
                   (Response response) => { _onLogoutError(context, response) });
 
     Navigator.pushNamed(context, '/logout/try');
@@ -227,7 +224,7 @@ class _MyAppState extends State<MyApp> {
     Provider.of<MainModel>(context, listen: false).pushButton(actionId);
 
     // Send REST request.
-    client.trigger(actionId,
+    mainModel.client.trigger(actionId,
                    () => { _onTriggerSuccess(context, actionId) },
                    (Response response) => { _onTriggerError(context, actionId, response) });
   }
