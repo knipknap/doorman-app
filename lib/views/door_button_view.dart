@@ -1,5 +1,4 @@
 import 'package:doorman/models/main.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/components/pulsatingbutton.dart';
@@ -31,28 +30,20 @@ class DoorButtonView extends StatefulWidget {
 }
 
 class _DoorButtonViewState extends State<DoorButtonView> {
-  Widget _button1Builder(BuildContext context, MainModel mainModel, Widget? child) {
-    Button button = mainModel.getButton(1);
-    String defaultLabel = AppLocalizations.of(context)!.button1DefaultLabel;
+  Widget _buttonBuilder(BuildContext context,
+                        MainModel mainModel,
+                        Widget? child,
+                        int id,
+                        String defaultLabel,
+                        double radius) {
+    Button button = mainModel.getButton(id);
     return PulsatingButton (
+      radius: radius,
       text: button.label ?? defaultLabel,
       pulsating: button.state != ButtonState.idle,
       onTap: (context) {
-        mainModel.pushButton(1);
-        widget.onButtonPressed(context, 1);
-      },
-    );
-  }
-
-  Widget _button2Builder(BuildContext context, MainModel mainModel, Widget? child) {
-    Button button = mainModel.getButton(2);
-    String defaultLabel = AppLocalizations.of(context)!.button2DefaultLabel;
-    return PulsatingButton (
-      text: button.label ?? defaultLabel,
-      pulsating: button.state != ButtonState.idle,
-      onTap: (context) {
-        mainModel.pushButton(2);
-        widget.onButtonPressed(context, 2);
+        mainModel.pushButton(id);
+        widget.onButtonPressed(context, id);
       },
     );
   }
@@ -98,11 +89,29 @@ class _DoorButtonViewState extends State<DoorButtonView> {
           children: <Widget>[
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
-              child: Consumer<MainModel>(builder: _button1Builder),
+              child: Consumer<MainModel>(
+                builder: (context, mainModel, child) => _buttonBuilder(
+                  context,
+                  mainModel,
+                  child,
+                  1,
+                  AppLocalizations.of(context)!.button1DefaultLabel,
+                  buttonW*0.6
+                )
+              ),
             ),
             ConstrainedBox(
               constraints: BoxConstraints.expand(width: buttonW, height: buttonW),
-              child: Consumer<MainModel>(builder: _button2Builder),
+              child: Consumer<MainModel>(
+                builder: (context, mainModel, child) => _buttonBuilder(
+                  context,
+                  mainModel,
+                  child,
+                  2,
+                  AppLocalizations.of(context)!.button2DefaultLabel,
+                  buttonW*0.6
+                )
+              ),
             ),
           ],
         ),

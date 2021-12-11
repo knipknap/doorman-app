@@ -6,6 +6,7 @@ class PulsatingButton extends StatefulWidget {
   PulsatingButton({
     Key? key,
     required this.onTap,
+    required this.radius,
     this.text = "",
     this.pulsating = false,
   }) : super(key: key);
@@ -13,6 +14,7 @@ class PulsatingButton extends StatefulWidget {
   final String text;
   final Function onTap;
   final bool pulsating;
+  final double radius;
 
   @override
   State<PulsatingButton> createState() => _PulsatingButtonState();
@@ -50,7 +52,7 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
     else {
       _controller.reset();
     }
-    children.add(_buildButton(context, 200, widget.text));
+    children.add(_buildButton(context, widget.radius, widget.text));
 
     return Stack(alignment: Alignment.center, children: children);
   }
@@ -62,10 +64,10 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
         return Stack(
           alignment: Alignment.center,
           children: [
-            _buildCircle(325 * _controller.value, opacity: 1 - _controller.value),
-            _buildCircle(350 * _controller.value, opacity: 1 - _controller.value),
-            _buildCircle(375 * _controller.value, opacity: 1 - _controller.value),
-            _buildCircle(400 * _controller.value, opacity: 1 - _controller.value),
+            _buildCircle(widget.radius*1.1*_controller.value, opacity: 1-_controller.value),
+            _buildCircle(widget.radius*1.3*_controller.value, opacity: 1-_controller.value),
+            _buildCircle(widget.radius*1.5*_controller.value, opacity: 1-_controller.value),
+            _buildCircle(widget.radius*1.7*_controller.value, opacity: 1-_controller.value),
           ],
         );
       },
@@ -78,7 +80,7 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _buildCircle(200),
+          _buildCircle(radius),
           Text(text, style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
         ],
       ),
