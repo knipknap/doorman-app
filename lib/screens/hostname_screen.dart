@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -17,7 +18,7 @@ class HostnameScreen extends StatefulWidget {
     required this.onNextPressed,
   }) : super(key: key);
 
-  final Function onNextPressed;
+  final void Function(BuildContext) onNextPressed;
 
   @override
   _HostnameScreenState createState() => _HostnameScreenState();
@@ -33,13 +34,15 @@ class _HostnameScreenState extends State<HostnameScreen> {
         labelText: AppLocalizations.of(context)!.hostname,
       ),
       onFieldSubmitted: (text) {
+        developer.log("HostnameScreen._buildNextButton() enter to submit pressed");
         mainModel.hubHostname = hostnameController.text;
         widget.onNextPressed(context);
+        developer.log("HostnameScreen._buildNextButton() enter to submit done");
       }
     );
   }
 
-  Widget _buildNextButton(BuildContext context) {
+  Widget _buildNextButton(BuildContext context, MainModel mainModel, Widget? child) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
       child: Ink(
@@ -58,7 +61,12 @@ class _HostnameScreenState extends State<HostnameScreen> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
-      onPressed: () => widget.onNextPressed(context),
+      onPressed: () {
+        developer.log("HostnameScreen._buildNextButton() next pressed");
+        mainModel.hubHostname = hostnameController.text;
+        widget.onNextPressed(context);
+        developer.log("HostnameScreen._buildNextButton() next pressed done");
+      }
     );
   }
 
@@ -112,7 +120,7 @@ class _HostnameScreenState extends State<HostnameScreen> {
                   SizedBox(height: 150),
                   Consumer<MainModel>(builder: _buildHostnameField),
                   SizedBox(height: 20),
-                  _buildNextButton(context),
+                  Consumer<MainModel>(builder: _buildNextButton),
                 ],
               ),
             ),

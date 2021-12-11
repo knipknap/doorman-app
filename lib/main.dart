@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:doorman/models/main.dart';
+import 'package:doorman/screens/connection_screen_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
@@ -11,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart' as constants;
 import 'theme.dart';
 import 'screens/door_button_screen.dart';
-import 'screens/hostname_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/load_screen.dart';
 import 'screens/my_settings_screen.dart';
@@ -22,92 +22,6 @@ void pushNamedReplace(navigator, String name, {Object? arguments}) {
   });
 }
 
-class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> implements NavigatorObserver {
-  @override
-  void didReplace({ Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    developer.log("GlobalNavigatorObserver.didReplace() from $oldRoute to $newRoute");
-    if (newRoute == null || newRoute == oldRoute) {
-      return;
-    }
-    didPush(newRoute, oldRoute);
-  }
-
-  @override
-  void didPush(Route route, Route? previousRoute) {
-    String prevRouteName = previousRoute == null ? "null" : previousRoute.settings.name as String;
-    String? routeName = route.settings.name;
-    developer.log("GlobalNavigatorObserver.didPush() from $prevRouteName to $routeName");
-
-    switch (routeName) {
-    case "/":
-      // Shows load screen.
-      //   - if app already initialized (i.e. hostname was set), go to /connect
-      //   - if not initialized, go to /init
-      if (mainModel.hubHostname == null) {
-        developer.log("GlobalNavigatorObserver.didPush() pushing /init");
-        pushNamedReplace(route.navigator!, '/init');
-      }
-      else {
-        developer.log("GlobalNavigatorObserver.didPush() pushing /connect");
-        pushNamedReplace(route.navigator!, '/connect');
-      }
-      return;
-
-    case "/init":
-      // Shows form to enter hostname
-      return;
-
-    case "/connect":
-      // Shows load screen, attempt to reach hub.
-      //   - if reached, go to /login/try
-      //   - if not reached, go to /init
-      developer.log("GlobalNavigatorObserver.didPush() connecting to ${mainModel.hubUrl}");
-      mainModel.client.init(
-        mainModel.hubUrl,
-        () {
-          developer.log("GlobalNavigatorObserver.didPush() pushing /autologin");
-          pushNamedReplace(route.navigator!, '/autologin');
-        },
-        (response) {
-          developer.log("GlobalNavigatorObserver.didPush() error: ${response.statusCode} ${response.body}, pushing /init");
-          pushNamedReplace(
-            route.navigator!,
-            '/init',
-            arguments: HostnameScreenArguments(response.body),
-          );
-        }
-      );
-      return;
-
-    case "/autologin":
-      // Shows load screen, check if logged in.
-      //   - if already logged in, go straight to /main
-      //   - otherwise, go to /login
-      if (mainModel.client.isLoggedIn()) {
-        developer.log("GlobalNavigatorObserver.didPush(): Already logged in, going to main");
-        pushNamedReplace(route.navigator!, '/main');
-        return;
-      }
-
-      // Clear navigation history and go to the login form.
-      developer.log("GlobalNavigatorObserver.didPush(): Not yet logged in, going to login page");
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        route.navigator!.pushNamedAndRemoveUntil(
-          '/login',
-          (Route<dynamic> route) => false
-        );
-        route.navigator!.pushReplacementNamed('/login');
-      });
-      return;
-
-    case "/login":
-      // Shows login form.
-      return;
-    }
-  }
-}
-
-final GlobalNavigatorObserver routeObserver = GlobalNavigatorObserver();
 final mainModel = MainModel();
 
 void main() {
@@ -141,14 +55,22 @@ class _MyAppState extends State<MyApp> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _onInitNextPressed(BuildContext context) {
-    developer.log("_onInitNextPressed");
+  void _onConnected(BuildContext context, bool haveSessionID) {
+    developer.log("_onConnected() $context $haveSessionID");
     SharedPreferences.getInstance().then((prefs) {
-      developer.log("_onInitNextPressed() Pushing /connect ${mainModel.hubHostname}");
       prefs.setString('hostname', mainModel.hubHostname ?? "");
       prefs.setString('port', mainModel.hubPort.toString());
-      Navigator.pushReplacementNamed(context, '/connect');
-      developer.log("_onInitNextPressed() Pushed /connect");
+
+      if (mainModel.client.isLoggedIn()) {
+        developer.log("_onConnected() ${mainModel.hubHostname} Pushing /main");
+        Navigator.pushReplacementNamed(context, '/main');
+        developer.log("_onConnected() Pushed /main");
+      }
+      else {
+        developer.log("_onConnected() ${mainModel.hubHostname} Pushing /login");
+        Navigator.pushReplacementNamed(context, '/login');
+        developer.log("_onConnected() Pushed /login");
+      }
     });
   }
 
@@ -259,22 +181,12 @@ class _MyAppState extends State<MyApp> {
     return ChangeNotifierProvider(
       create: (context) => mainModel,
       child: MaterialApp(
-        navigatorObservers: [ routeObserver ],
         title: constants.APP_NAME,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: themeData,
         routes: {
-          '/': (context) => LoadScreen(title: constants.APP_NAME),
-          '/init': (context) => HostnameScreen(onNextPressed: _onInitNextPressed),
-          '/connect': (context) => LoadScreen(
-            title: constants.APP_NAME,
-            status: AppLocalizations.of(context)!.statusConnecting,
-          ),
-          '/autologin': (context) => LoadScreen(
-            title: constants.APP_NAME,
-            status: AppLocalizations.of(context)!.statusAutologin,
-          ),
+          '/': (context) => ConnectionScreen(onConnected: _onConnected),
           '/login': (context) => LoginScreen(
             title: constants.APP_NAME,
             onLoginPressed: _onLoginPressed

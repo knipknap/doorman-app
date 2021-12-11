@@ -1,0 +1,51 @@
+@startuml flow
+!pragma useVerticalIf on
+
+start
+
+group Splash Screen
+  :Load preferences;
+end group
+
+->//onReady//;
+
+group Connection Screen
+  if (Have hostname?) then (no)
+  else (yes)
+    (a)
+  endif
+  repeat
+    :Enter hostname;
+
+    (a)
+
+    :Init client;
+    note left
+      Check connectivity
+      Get session ID (if any)
+    end note
+
+  repeat while (Connected?) is (No) not (Yes)
+end group
+
+->//onConnected//;
+
+if (Session ID valid?) then (no)
+  group Login Screen
+    repeat
+      :Login form;
+      :Try password login;
+    repeat while (Successful) is (no) not (yes)
+  end group
+else (yes)
+endif
+
+->//onLoginSuccess//;
+
+group Main Screen
+  :Show buttons;
+end group
+
+break
+
+@enduml
