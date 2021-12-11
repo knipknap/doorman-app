@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/components/bezier_container.dart';
+import 'package:doorman/components/password_form_field.dart';
 import 'package:doorman/constants.dart' as constants;
 
 class LoginView extends StatefulWidget {
@@ -31,20 +32,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildPasswordField(String title, TextEditingController ctr) {
-    return TextFormField(
-      controller: ctr,
-      obscureText: true,
-      autofillHints: const [AutofillHints.password],
-      onFieldSubmitted: (_) {
-        widget.onLoginPressed(context, emailController.text, passwordController.text);
-      },
-      decoration: InputDecoration(
-        labelText: title,
-      ),
-    );
-  }
-
   Widget _buildLoginButton(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
@@ -69,43 +56,6 @@ class _LoginViewState extends State<LoginView> {
       },
     );
   }
-
-  /*
-  Widget _buildAccountLabel() {
-    return InkWell(
-      onTap: () {
-        /*Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SignUpPage())
-        );*/
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 20),
-        padding: EdgeInsets.all(15),
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text(
-              'Don\'t have an account ?',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              'Register',
-              style: TextStyle(
-                  color: Color(0xfff79c4f),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  */
 
   Widget _buildTitle() {
     return RichText(
@@ -146,19 +96,15 @@ class _LoginViewState extends State<LoginView> {
                     SizedBox(height: 150),
                     _buildUsernameField(AppLocalizations.of(context)!.email, emailController),
                     SizedBox(height: 10),
-                    _buildPasswordField(AppLocalizations.of(context)!.password, passwordController),
+                    PasswordFormField(
+                      context: context,
+                      controller: passwordController,
+                      onFieldSubmitted: (_) {
+                        widget.onLoginPressed(context, emailController.text, passwordController.text);
+                      },
+                    ),
                     SizedBox(height: 20),
                     _buildLoginButton(context),
-                    /*Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      alignment: Alignment.centerRight,
-                      child: Text('Forgot Password ?',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500)),
-                    ),
-                    SizedBox(height: height * .055),
-                    _buildAccountLabel(),
-                    */
                   ],
                 ),
               ),
