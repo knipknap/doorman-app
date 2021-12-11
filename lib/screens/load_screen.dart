@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:doorman/components/bezier_container.dart';
 import 'package:doorman/constants.dart' as constants;
 
-class LoadScreenView extends StatefulWidget {
-  const LoadScreenView({
+class LoadScreen extends StatefulWidget {
+  const LoadScreen({
     Key? key,
     this.title,
     this.status,
@@ -13,10 +13,10 @@ class LoadScreenView extends StatefulWidget {
   final String? status;
 
   @override
-  _LoadScreenViewState createState() => _LoadScreenViewState();
+  _LoadScreenState createState() => _LoadScreenState();
 }
 
-class _LoadScreenViewState extends State<LoadScreenView> with TickerProviderStateMixin {
+class _LoadScreenState extends State<LoadScreen> with TickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override

@@ -1,17 +1,17 @@
-import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:provider/provider.dart';
+import 'package:doorman/models/main.dart';
 
-class AppSettings extends StatefulWidget {
-  const AppSettings({Key? key}) : super(key: key);
+class MySettingsScreen extends StatefulWidget {
+  const MySettingsScreen({Key? key}) : super(key: key);
 
   @override
-  _AppSettingsState createState() => _AppSettingsState();
+  _MySettingsScreenState createState() => _MySettingsScreenState();
 }
 
-class _AppSettingsState extends State<AppSettings> {
+class _MySettingsScreenState extends State<MySettingsScreen> {
   Widget _buttonLabelTileBuilder(BuildContext context,
                                  MainModel mainModel,
                                  Widget? child,

@@ -4,8 +4,8 @@ import 'package:doorman/components/bezier_container.dart';
 import 'package:doorman/components/password_form_field.dart';
 import 'package:doorman/constants.dart' as constants;
 
-class LoginView extends StatefulWidget {
-  const LoginView({
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({
     Key? key,
     this.title,
     required this.onLoginPressed,
@@ -15,10 +15,10 @@ class LoginView extends StatefulWidget {
   final Function onLoginPressed;
 
   @override
-  _LoginViewState createState() => _LoginViewState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 

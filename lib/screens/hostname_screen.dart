@@ -5,14 +5,14 @@ import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/components/bezier_container.dart';
 import 'package:provider/provider.dart';
 
-class HostnameViewArguments {
+class HostnameScreenArguments {
   final String error;
 
-  HostnameViewArguments(this.error);
+  HostnameScreenArguments(this.error);
 }
 
-class HostnameView extends StatefulWidget {
-  const HostnameView({
+class HostnameScreen extends StatefulWidget {
+  const HostnameScreen({
     Key? key,
     required this.onNextPressed,
   }) : super(key: key);
@@ -20,10 +20,10 @@ class HostnameView extends StatefulWidget {
   final Function onNextPressed;
 
   @override
-  _HostnameViewState createState() => _HostnameViewState();
+  _HostnameScreenState createState() => _HostnameScreenState();
 }
 
-class _HostnameViewState extends State<HostnameView> {
+class _HostnameScreenState extends State<HostnameScreen> {
   TextEditingController hostnameController = TextEditingController();
 
   Widget _buildHostnameField(BuildContext context, MainModel mainModel, Widget? child) {
@@ -78,7 +78,7 @@ class _HostnameViewState extends State<HostnameView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as HostnameViewArguments?;
+    final args = ModalRoute.of(context)!.settings.arguments as HostnameScreenArguments?;
 
     if (args != null) {
       WidgetsBinding.instance!.addPostFrameCallback((_) {

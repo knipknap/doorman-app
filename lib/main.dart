@@ -10,11 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart' as constants;
 import 'theme.dart';
-import 'views/door_button_view.dart';
-import 'views/hostname_view.dart';
-import 'views/login_view.dart';
-import 'views/load_screen_view.dart';
-import 'views/settings_view.dart';
+import 'screens/door_button_screen.dart';
+import 'screens/hostname_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/load_screen.dart';
+import 'screens/my_settings_screen.dart';
 
 void pushNamedReplace(navigator, String name, {Object? arguments}) {
   WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -73,7 +73,7 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
           pushNamedReplace(
             route.navigator!,
             '/init',
-            arguments: HostnameViewArguments(response.body),
+            arguments: HostnameScreenArguments(response.body),
           );
         }
       );
@@ -265,35 +265,35 @@ class _MyAppState extends State<MyApp> {
         supportedLocales: AppLocalizations.supportedLocales,
         theme: themeData,
         routes: {
-          '/': (context) => LoadScreenView(title: constants.APP_NAME),
-          '/init': (context) => HostnameView(onNextPressed: _onInitNextPressed),
-          '/connect': (context) => LoadScreenView(
+          '/': (context) => LoadScreen(title: constants.APP_NAME),
+          '/init': (context) => HostnameScreen(onNextPressed: _onInitNextPressed),
+          '/connect': (context) => LoadScreen(
             title: constants.APP_NAME,
             status: AppLocalizations.of(context)!.statusConnecting,
           ),
-          '/autologin': (context) => LoadScreenView(
+          '/autologin': (context) => LoadScreen(
             title: constants.APP_NAME,
             status: AppLocalizations.of(context)!.statusAutologin,
           ),
-          '/login': (context) => LoginView(
+          '/login': (context) => LoginScreen(
             title: constants.APP_NAME,
             onLoginPressed: _onLoginPressed
           ),
-          '/login/try': (context) => LoadScreenView(
+          '/login/try': (context) => LoadScreen(
             title: constants.APP_NAME,
             status: AppLocalizations.of(context)!.statusLogin,
           ),
-          '/logout/try': (context) => LoadScreenView(
+          '/logout/try': (context) => LoadScreen(
             title: constants.APP_NAME,
             status: AppLocalizations.of(context)!.statusLogout,
           ),
-          '/main': (context) => DoorButtonView(
+          '/main': (context) => DoorButtonScreen(
             title: constants.APP_NAME,
             onButtonPressed: _onDoorButtonPressed,
             onSettingsPressed: _onSettingsPressed,
             onLogoutPressed: _onLogoutPressed,
           ),
-          '/settings': (context) => AppSettings(),
+          '/settings': (context) => MySettingsScreen(),
         },
       ),
     );

@@ -1,14 +1,14 @@
-import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:doorman/components/pulsatingbutton.dart';
 import 'package:provider/provider.dart';
+import 'package:doorman/components/pulsatingbutton.dart';
+import 'package:doorman/models/main.dart';
 
 // This is the type used by the popup menu below.
 enum MenuItems { logout, settings }
 
-class DoorButtonView extends StatefulWidget {
-  const DoorButtonView({
+class DoorButtonScreen extends StatefulWidget {
+  const DoorButtonScreen({
     Key? key,
     required this.title,
     required this.onButtonPressed,
@@ -26,10 +26,10 @@ class DoorButtonView extends StatefulWidget {
   final bool button2Pulsating;
 
   @override
-  State<DoorButtonView> createState() => _DoorButtonViewState();
+  State<DoorButtonScreen> createState() => _DoorButtonScreenState();
 }
 
-class _DoorButtonViewState extends State<DoorButtonView> {
+class _DoorButtonScreenState extends State<DoorButtonScreen> {
   Widget _buttonBuilder(BuildContext context,
                         MainModel mainModel,
                         Widget? child,
