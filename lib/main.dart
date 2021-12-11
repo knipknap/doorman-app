@@ -16,12 +16,6 @@ import 'screens/login_screen.dart';
 import 'screens/load_screen.dart';
 import 'screens/my_settings_screen.dart';
 
-void pushNamedReplace(navigator, String name, {Object? arguments}) {
-  WidgetsBinding.instance!.addPostFrameCallback((_) {
-    navigator.pushReplacementNamed(name, arguments: arguments);
-  });
-}
-
 final mainModel = MainModel();
 
 void main() {
