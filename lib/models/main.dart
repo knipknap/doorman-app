@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum ButtonState {
   idle,
@@ -6,9 +7,23 @@ enum ButtonState {
   opening
 }
 
-class Button {
-  String? label;
-  ButtonState state = ButtonState.idle;
+class Button extends ChangeNotifier {
+  String? _label;
+  ButtonState _state = ButtonState.idle;
+
+  String? get label => _label;
+
+  set label(String? value) {
+    _label = value;
+    notifyListeners();
+  }
+
+  ButtonState get state => _state;
+
+  set state(ButtonState value) {
+    _state = value;
+    notifyListeners();
+  }
 }
 
 class MainModel extends ChangeNotifier {
@@ -17,9 +32,25 @@ class MainModel extends ChangeNotifier {
     Button(),
   ];
 
+  MainModel() {
+    for (var button in _buttons) {
+      button.addListener(notifyListeners);
+    }
+  }
+
+  Future<void> loadSharedPreferences() async {
+    SharedPreferences.getInstance().then((prefs) {
+      getButton(1).label = prefs.getString("button1-label");
+      getButton(2).label = prefs.getString("button2-label");
+    });
+  }
+
+  void setButtonLabel(int id, String label) {
+    _buttons[id-1].label = label;
+  }
+
   void setButtonState(int id, ButtonState state) {
     _buttons[id-1].state = state;
-    notifyListeners();
   }
 
   void pushButton(int id) {

@@ -118,6 +118,7 @@ class GlobalNavigatorObserver extends RouteObserver<ModalRoute<Object?>> impleme
 }
 
 final GlobalNavigatorObserver routeObserver = GlobalNavigatorObserver();
+final mainModel = MainModel();
 
 void main() {
   initSettings().then((_) {
@@ -131,6 +132,7 @@ Future<void> initSettings() async {
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
+  await mainModel.loadSharedPreferences();
 }
 
 class MyApp extends StatefulWidget {
@@ -264,7 +266,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MainModel(),
+      create: (context) => mainModel,
       child: MaterialApp(
         navigatorObservers: [ routeObserver ],
         title: constants.APP_NAME,
