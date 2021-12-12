@@ -28,8 +28,7 @@ class _PulsatingButtonState extends State<PulsatingButton> with TickerProviderSt
     super.initState();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
-      lowerBound: .3,
-      //upperBound: 2,
+      lowerBound: .2,
       vsync: this,
     );
   }
