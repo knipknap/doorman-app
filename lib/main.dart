@@ -68,32 +68,9 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _onLoginPressed(BuildContext context, String email, String password) {
-    developer.log("Login");
-    mainModel.client.passwordLogin(email,
-                         password,
-                         () => { _onLoginSuccess(context) },
-                         (Response response) => { _onLoginError(context, response) });
-    Navigator.pushNamed(context, '/login/try');
-  }
-
   void _onLoginSuccess(BuildContext context) {
-    developer.log("LoginSuccess");
+    developer.log("_onLoginSuccess()");
     Navigator.pushReplacementNamed(context, '/main');
-  }
-
-  void _onLoginError(BuildContext context, Response response) {
-    developer.log("onLoginError");
-
-    Navigator.pop(context);
-
-    // Briefly show the error message.
-    String err = response.body;
-    if (response.statusCode == 401) {
-      err = AppLocalizations.of(context)!.invalidCredentials;
-    }
-    final snackBar = SnackBar(content: Text(err));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _onLogoutPressed(BuildContext context) {
@@ -183,7 +160,7 @@ class _MyAppState extends State<MyApp> {
           '/': (context) => ConnectionScreen(onConnected: _onConnected),
           '/login': (context) => LoginScreen(
             title: constants.APP_NAME,
-            onLoginPressed: _onLoginPressed
+            onLoginSuccess: _onLoginSuccess
           ),
           '/login/try': (context) => LoadScreen(
             title: constants.APP_NAME,

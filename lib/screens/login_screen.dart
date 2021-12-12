@@ -1,18 +1,23 @@
+import 'dart:developer' as developer;
+import 'package:doorman/screens/load_screen.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:doorman/constants.dart' as constants;
+import 'package:doorman/models/main.dart';
 import 'package:doorman/components/bezier_container.dart';
 import 'package:doorman/components/password_form_field.dart';
-import 'package:doorman/constants.dart' as constants;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     Key? key,
     this.title,
-    required this.onLoginPressed,
+    required this.onLoginSuccess,
   }) : super(key: key);
 
   final String? title;
-  final Function onLoginPressed;
+  final void Function(BuildContext) onLoginSuccess;
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -21,6 +26,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool loginRunning = false;
 
   Widget _buildUsernameField(String title, TextEditingController ctr) {
     return TextFormField(
@@ -30,6 +36,37 @@ class _LoginScreenState extends State<LoginScreen> {
         labelText: title,
       ),
     );
+  }
+
+  void _onLoginPressed() {
+    developer.log("LoginScreen._onLoginPressed()");
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    setState(() { loginRunning = true; });
+    mainModel.client.passwordLogin(
+      emailController.text,
+      passwordController.text,
+      _onLoginSuccess,
+      _onLoginError,
+    );
+  }
+
+  void _onLoginSuccess() {
+    developer.log("LoginScreen._onLoginSuccess()");
+    setState(() { loginRunning = false; });
+    widget.onLoginSuccess(context);
+  }
+
+  void _onLoginError(Response response) {
+    developer.log("LoginScreen._onLoginError()");
+    setState(() { loginRunning = false; });
+
+    // Briefly show the error message.
+    String err = response.body;
+    if (response.statusCode == 401) {
+      err = AppLocalizations.of(context)!.invalidCredentials;
+    }
+    final snackBar = SnackBar(content: Text(err));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget _buildLoginButton(BuildContext context) {
@@ -51,9 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
-      onPressed: () {
-        widget.onLoginPressed(context, emailController.text, passwordController.text);
-      },
+      onPressed: _onLoginPressed,
     );
   }
 
@@ -72,6 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (loginRunning) {
+      return LoadScreen(status: AppLocalizations.of(context)!.statusLogin);
+    }
+
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.indigoAccent,
@@ -99,9 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     PasswordFormField(
                       context: context,
                       controller: passwordController,
-                      onFieldSubmitted: (_) {
-                        widget.onLoginPressed(context, emailController.text, passwordController.text);
-                      },
+                      onFieldSubmitted: (_) => _onLoginPressed()
                     ),
                     SizedBox(height: 20),
                     _buildLoginButton(context),

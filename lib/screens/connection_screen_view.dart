@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/models/main.dart';
@@ -54,6 +55,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
     _tryInit();
   }
 
+  void didPop() {
+    developer.log("ConnectionScreen.didPop()");
+    _tryInit();
+  }
+
   void didPush() {
     developer.log("ConnectionScreen.didPush()");
     _tryInit();
@@ -66,7 +72,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> with TickerProvider
 
     if (mainModel.hubHostname != null) {
       developer.log("ConnectionScreen.build() hostname already set ${mainModel.hubHostname}");
-      return LoadScreen(title: constants.APP_NAME);
+      return LoadScreen(
+        title: constants.APP_NAME,
+        status: AppLocalizations.of(context)!.statusConnecting,
+      );
     }
 
     return HostnameScreen(onNextPressed: (_) => _tryInit());
