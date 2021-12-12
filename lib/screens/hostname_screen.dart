@@ -84,19 +84,6 @@ class _HostnameScreenState extends State<HostnameScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as HostnameScreenArguments?;
-
-    if (args != null) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        final snackBar = SnackBar(content: Text(args.error));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
