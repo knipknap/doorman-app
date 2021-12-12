@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart';
+import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/components/pulsatingbutton.dart';
 import 'package:doorman/models/main.dart';
 
@@ -10,16 +14,12 @@ enum MenuItems { logout, settings }
 class DoorButtonScreen extends StatefulWidget {
   const DoorButtonScreen({
     Key? key,
-    required this.title,
-    required this.onButtonPressed,
     required this.onSettingsPressed,
     required this.onLogoutPressed,
     this.button1Pulsating = false,
     this.button2Pulsating = false,
   }) : super(key: key);
 
-  final String title;
-  final Function onButtonPressed;
   final Function onSettingsPressed;
   final Function onLogoutPressed;
   final bool button1Pulsating;
@@ -30,6 +30,14 @@ class DoorButtonScreen extends StatefulWidget {
 }
 
 class _DoorButtonScreenState extends State<DoorButtonScreen> {
+  void _showErrorResponse(Response response) {
+    // Briefly show the error message as a SnackBar.
+    String err = response.body;
+    developer.log("DoorButtonScreen._showErrorResponse() $response $err");
+    final snackBar = SnackBar(content: Text(err));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   Widget _buttonBuilder(BuildContext context,
                         MainModel mainModel,
                         Widget? child,
@@ -41,11 +49,47 @@ class _DoorButtonScreenState extends State<DoorButtonScreen> {
       radius: radius,
       text: button.label ?? defaultLabel,
       pulsating: button.state != ButtonState.idle,
-      onTap: (context) {
-        mainModel.pushButton(id);
-        widget.onButtonPressed(context, id);
-      },
+      onTap: (context) => _onButtonPressed(id),
     );
+  }
+
+  void _onButtonPressed(int actionId) {
+    developer.log("DoorButtonScreen._onButtonPressed()");
+
+    // Update the state of the buttons such that animations start.
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.pushButton(actionId);
+
+    // Send REST request.
+    mainModel.client.trigger(
+      actionId,
+      () => _onTriggerSuccess(actionId),
+      (Response response) => _onTriggerError(context, actionId, response),
+    );
+  }
+
+  void _onTriggerSuccess(int actionId) {
+    developer.log("DoorButtonScreen._onTriggerSuccess()");
+
+    // Set state to "opening" for a few seconds, then back to "idle".
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.setButtonState(actionId, ButtonState.opening);
+
+    Duration duration = Duration(seconds: 3);
+    Timer(duration, () {
+      mainModel.setButtonState(actionId, ButtonState.idle);
+    });
+  }
+
+  void _onTriggerError(BuildContext context, int actionId, Response response) {
+    developer.log("DoorButtonScreen._onTriggerError()");
+
+    // Reset button state.
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.setButtonState(actionId, ButtonState.idle);
+
+    // Briefly show the error message.
+    _showErrorResponse(response);
   }
 
   @override
@@ -81,7 +125,7 @@ class _DoorButtonScreenState extends State<DoorButtonScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(constants.APP_NAME),
         actions: [ menuButton ],
       ),
       body: Center(

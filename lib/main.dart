@@ -41,14 +41,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  void _showErrorResponse(Response response) {
-    // Briefly show the error message as a SnackBar.
-    String err = response.body;
-    developer.log("_showErrorResponse() $response $err");
-    final snackBar = SnackBar(content: Text(err));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
   void _onConnected(BuildContext context, bool haveSessionID) {
     developer.log("_onConnected() $context $haveSessionID");
     SharedPreferences.getInstance().then((prefs) {
@@ -74,16 +66,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onLogoutPressed(BuildContext context) {
-    developer.log("_onLogoutPressed");
+    developer.log("_onLogoutPressed()");
 
-    mainModel.client.logout(() => { _onLogoutSuccess(context) },
-                  (Response response) => { _onLogoutError(context, response) });
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.client.logout(
+      () => _onLogoutSuccess(context),
+      (Response response) => _onLogoutError(context, response),
+    );
 
     Navigator.pushNamed(context, '/logout/try');
   }
 
   void _onLogoutSuccess(BuildContext context) {
-    developer.log("LogoutSuccess");
+    developer.log("_onLogoutSuccess()");
 
     // Clear navigation history and go to the login form.
     Navigator.of(context).pushNamedAndRemoveUntil(
@@ -93,7 +88,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onLogoutError(BuildContext context, Response response) {
-    developer.log("onLogoutError");
+    developer.log("_onLogoutError()");
 
     // Clear navigation history and go to the login form.
     Navigator.of(context).pushNamedAndRemoveUntil(
@@ -102,48 +97,13 @@ class _MyAppState extends State<MyApp> {
     );
 
     // Briefly show the error message.
-    _showErrorResponse(response);
+    final snackBar = SnackBar(content: Text(response.body));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _onSettingsPressed(BuildContext context) {
     developer.log("_onSettingsPressed");
     Navigator.pushNamed(context, '/settings');
-  }
-
-  void _onDoorButtonPressed(BuildContext context, int actionId) {
-    developer.log("onDoorButtonPressed");
-
-    // Update the state of the buttons such that animations start.
-    Provider.of<MainModel>(context, listen: false).pushButton(actionId);
-
-    // Send REST request.
-    mainModel.client.trigger(actionId,
-                   () => { _onTriggerSuccess(context, actionId) },
-                   (Response response) => { _onTriggerError(context, actionId, response) });
-  }
-
-  void _onTriggerSuccess(BuildContext context, int actionId) {
-    developer.log("onTriggerSuccess");
-
-    // Set state to "opening" for a few seconds, then back to "idle".
-    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
-    mainModel.setButtonState(actionId, ButtonState.opening);
-
-    Duration duration = Duration(seconds: 3);
-    Timer(duration, () {
-        mainModel.setButtonState(actionId, ButtonState.idle);
-    });
-  }
-
-  void _onTriggerError(BuildContext context, int actionId, Response response) {
-    developer.log("onTriggerError");
-
-    // Reset button state.
-    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
-    mainModel.setButtonState(actionId, ButtonState.idle);
-
-    // Briefly show the error message.
-    _showErrorResponse(response);
   }
 
   // This widget is the root of your application.
@@ -171,8 +131,6 @@ class _MyAppState extends State<MyApp> {
             status: AppLocalizations.of(context)!.statusLogout,
           ),
           '/main': (context) => DoorButtonScreen(
-            title: constants.APP_NAME,
-            onButtonPressed: _onDoorButtonPressed,
             onSettingsPressed: _onSettingsPressed,
             onLogoutPressed: _onLogoutPressed,
           ),
