@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/constants.dart' as constants;
 import 'package:doorman/models/main.dart';
 import 'package:doorman/components/bezier_container.dart';
+import 'package:doorman/components/gradient_button.dart';
 import 'package:doorman/components/password_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -69,29 +70,6 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  Widget _buildLoginButton(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-      child: Ink(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: const [Color(0xfffbb448), Color(0xfff7892b)],
-          )
-        ),
-        child: Text(
-          AppLocalizations.of(context)!.login,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-      onPressed: _onLoginPressed,
-    );
-  }
-
   Widget _buildTitle() {
     return RichText(
       textAlign: TextAlign.center,
@@ -141,7 +119,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       onFieldSubmitted: (_) => _onLoginPressed()
                     ),
                     SizedBox(height: 20),
-                    _buildLoginButton(context),
+                    GradientButton(
+                      text: AppLocalizations.of(context)!.login,
+                      onPressed: _onLoginPressed,
+                    ),
                   ],
                 ),
               ),

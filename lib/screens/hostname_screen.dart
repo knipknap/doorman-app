@@ -1,9 +1,10 @@
 import 'dart:developer' as developer;
-import 'package:doorman/models/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:doorman/constants.dart' as constants;
+import 'package:doorman/models/main.dart';
 import 'package:doorman/components/bezier_container.dart';
+import 'package:doorman/components/gradient_button.dart';
 import 'package:provider/provider.dart';
 
 class HostnameScreenArguments {
@@ -33,41 +34,16 @@ class _HostnameScreenState extends State<HostnameScreen> {
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.hostname,
       ),
-      onFieldSubmitted: (text) {
-        developer.log("HostnameScreen._buildNextButton() enter to submit pressed");
-        mainModel.hubHostname = hostnameController.text;
-        widget.onNextPressed(context);
-        developer.log("HostnameScreen._buildNextButton() enter to submit done");
-      }
+      onFieldSubmitted: (_) { _onNextPressed(); },
     );
   }
 
-  Widget _buildNextButton(BuildContext context, MainModel mainModel, Widget? child) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-      child: Ink(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: const [Color(0xfffbb448), Color(0xfff7892b)],
-          )
-        ),
-        child: Text(
-          AppLocalizations.of(context)!.next,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-      onPressed: () {
-        developer.log("HostnameScreen._buildNextButton() next pressed");
-        mainModel.hubHostname = hostnameController.text;
-        widget.onNextPressed(context);
-        developer.log("HostnameScreen._buildNextButton() next pressed done");
-      }
-    );
+  void _onNextPressed() {
+    developer.log("HostnameScreen._onNextButton() next pressed");
+    MainModel mainModel = Provider.of<MainModel>(context, listen: false);
+    mainModel.hubHostname = hostnameController.text;
+    widget.onNextPressed(context);
+    developer.log("HostnameScreen._onNextButton() next pressed done");
   }
 
   Widget _buildTitle() {
@@ -107,7 +83,10 @@ class _HostnameScreenState extends State<HostnameScreen> {
                   SizedBox(height: 150),
                   Consumer<MainModel>(builder: _buildHostnameField),
                   SizedBox(height: 20),
-                  Consumer<MainModel>(builder: _buildNextButton),
+                  GradientButton(
+                    text: AppLocalizations.of(context)!.next,
+                    onPressed: _onNextPressed,
+                  ),
                 ],
               ),
             ),
