@@ -3,10 +3,6 @@
     "@statusConnecting": {
       "description": "Status on the load screen."
     },
-    "statusAutologin": "Trying to log in automatically",
-    "@statusAutologin": {
-      "description": "Status on the load screen."
-    },
     "statusLogin": "Trying to log in",
     "@statusLogin": {
       "description": "Status on the load screen."

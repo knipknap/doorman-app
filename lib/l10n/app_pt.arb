@@ -1,0 +1,29 @@
+{
+    "statusConnecting": "Conectando",
+    "statusLogin": "Fazendo login",
+    "statusLogout": "Fazendo logout",
+
+    "hostname": "Nome do servidor",
+    "next": "Próximo",
+
+    "email": "Email",
+    "password": "Senha",
+    "login": "Login",
+    "invalidCredentials": "Detalhes de login inválidos, por favor tente novamente.",
+
+    "button1DefaultLabel": "Porta de frente",
+    "button2DefaultLabel": "Porta do apartamento",
+    "settings": "Configurações",
+    "logout": "Sair",
+
+    "appSettings": "Configurações",
+    "hubSettings": "Configurações de servidor",
+    "errInvalidHostname": "O formato do nome do host não é válido",
+    "portNumber": "Porta",
+    "errMissingPortNumber": "Porta é obgriadorio",
+    "errInvalidPortNumber": "Porta inválido",
+
+    "buttonSettings": "Rotulagem do botão",
+    "buttonLabel": "{count, plural, zero{Primeiro botão} one{Segundo botão} other{Botão {count}}}",
+    "errLabelTooLong": "Texto muito longo"
+}

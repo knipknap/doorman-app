@@ -1,6 +1,5 @@
 {
     "statusConnecting": "Verbindungsaufbau",
-    "statusAutologin": "Automatischer Loginversuch",
     "statusLogin": "Versuche einzuloggen",
     "statusLogout": "Versuche auszuloggen",
 
